@@ -1,0 +1,9 @@
+software/.metadata
+software/RemoteSystemsTempFiles
+software/leddriver/.settings
+software/leddriver/.cproject
+software/leddriver/.project
+*.o
+*.hex
+*.map
+*.elf
