@@ -11,7 +11,7 @@ void adc_Init(){
 	adc.lastCnt = 0;
 
 	/* set 1.1V internal reference and select first channel */
-	ADMUX |= (1 << REFS1) | adc.channels[adc.cnt];
+	ADMUX |= (1 << REFS1) | adc.channels[0];
 
 	/* enable the ADC, free-running, interrupt enable, prescaler = 128 */
 	ADCSRA |= (1 << ADEN) | (1 << ADATE) | (1 << ADIE) | (1 << ADPS2)
@@ -34,4 +34,8 @@ ISR(ADC_vect){
 	adc.lastCnt = (adc.lastCnt + 1) % ADC_NUM_CHANNELS;
 	/* set next channel for next conversion */
 	ADMUX |= (1 << REFS1) | adc.channels[adc.cnt];
+	if (adc.callback && !adc.lastCnt){
+		/* ADC cycle finished */
+		adc.callback();
+	}
 }
