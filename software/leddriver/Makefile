@@ -70,6 +70,12 @@ $(TARGET).elf: $(OBJECTS)
 %.lst: %.elf
 	$(OBJDUMP) -S $< > $@
 
+## To make .s files from .c files
+%.asm: %.c Makefile
+	 $(CC) -c -g -Wa,-a,-ad $(CFLAGS) $(TARGET_ARCH) $< > $@;
+
+assembler: $(SOURCES:.c=.asm)
+
 ## These targets don't have files named after them
 .PHONY: all disassemble disasm eeprom size clean squeaky_clean flash fuses
 
@@ -77,7 +83,7 @@ clean:
 	rm -f $(TARGET).elf $(TARGET).hex $(TARGET).obj \
 	$(TARGET).o $(TARGET).d $(TARGET).eep $(TARGET).lst \
 	$(TARGET).lss $(TARGET).sym $(TARGET).map $(TARGET)~ \
-	$(TARGET).eeprom $(OBJECTS)
+	$(TARGET).eeprom $(OBJECTS) $(SOURCES:.c=.asm)
 
 flash: $(TARGET).elf
 	@echo
