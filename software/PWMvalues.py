@@ -7,7 +7,7 @@ F_CPU = 20000000;
 # Maximum counter value
 CNT_MAX = 255;
 # Length of required PWM look-up table (additional entries will be dropped)
-LOOKUP_LENGTH = 128;
+LOOKUP_LENGTH = 1024;
 
 # Maximum switching frequency in Hz
 MAX_FREQ = 1000000;
@@ -63,7 +63,7 @@ print "Average size between steps: ", stepsize;
 # print look-up table as array of LOOKUP_LENGTH * 2
 print "Lookup-table format is: {OCR, TOP}, resulting in ascending duty cycle value, starting at %.2f" % minDuty;
 print "COPY FROM HERE ----------------------------->"
-print "PWM_LOOKUP = {"
+print "const uint8_t PWM_LOOKUP[][2] PROGMEM = {"
 for steps in range(0, LOOKUP_LENGTH):
 	i = 0;
 	compValue = minDuty + stepsize * steps;
@@ -71,9 +71,9 @@ for steps in range(0, LOOKUP_LENGTH):
 		i = i + 1;
 	#print "Step %d: %.2f %d %d" % (steps, PWMList[i][0], PWMList[i][1], PWMList[i][2]);
 	if(steps < LOOKUP_LENGTH - 1):
-		print "{%d, %d}," % (PWMList[i][1], PWMList[i][2]);
+		print "{0x%02x, 0x%02x}, \t// Duty cycle = %.2f" % (PWMList[i][1], PWMList[i][2], PWMList[i][0]);
 	else:
-		print "{%d, %d}" % (PWMList[i][1], PWMList[i][2]);
+		print "{0x%02x, 0x%02x}  \t// Duty cycle = %.2f" % (PWMList[i][1], PWMList[i][2], PWMList[i][0]);
 print "};"
 print "<----------------------------- COPY TILL HERE"
 

@@ -8,10 +8,8 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <avr/pgmspace.h>
 #include "adc.h"
-
-#define BOOST_MAX_PWM		255
-#define BOOST_MIN_PWM		70
 
 /* voltage sensing factor (voltage divider factor) */
 #define BOOST_VOL_SENS_FACT	48
@@ -23,10 +21,13 @@
 /* maximum current is defined as nearly full ADC range for the given shunt */
 #define BOOST_MAX_CURRENT 	(1000000UL/BOOST_SHUNT_VALUE)
 
+register uint8_t compare asm("r2");
+register uint8_t top asm("r3");
+
 struct {
 	uint16_t setCurrentRaw;
 	uint16_t setVoltageRaw;
-	uint8_t PWM;
+	uint16_t PWM;
 } boost;
 
 /**
@@ -39,5 +40,9 @@ void boost_Update(void);
 void boost_setCurrent(uint16_t mA);
 
 void boost_setMaxVoltage(uint16_t mV);
+
+void boost_updatePWM(void);
+
+ISR(TIM0_OVF_vect) __attribute__ ((naked));
 
 #endif
