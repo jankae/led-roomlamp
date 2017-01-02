@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \brief Defines and routines for accessing the auxiliary channels
+ */
 #include "channels.h"
 
 void channels_Init(void){

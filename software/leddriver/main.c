@@ -1,3 +1,6 @@
+/**
+ * \file
+ */
 #include <avr/io.h>
 #include <avr/sleep.h>
 
@@ -12,7 +15,7 @@ int main(void){
 	channels_Init();
 	adc_Init();
 	usi_Init();
-
+	volatile uint16_t t = BOOST_NTC_MAX_V;
 	/* disable analog comparator */
 	ACSR |= (1<<ACD);
 	/* disable timer1 module (not needed) */

@@ -7,3 +7,5 @@ software/leddriver/.project
 *.hex
 *.map
 *.elf
+*html
+*latex

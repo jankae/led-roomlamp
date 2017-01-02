@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \brief ADC setup and free-running operation
+ */
 #include "adc.h"
 
 void adc_Init(){

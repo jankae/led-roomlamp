@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \brief Serial interface and protocol implementation
+ */
 #include "usi.h"
 
 void usi_Init(void) {
