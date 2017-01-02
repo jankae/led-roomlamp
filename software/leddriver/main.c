@@ -8,6 +8,7 @@
 
 int main(void){
 	boost_Init();
+	boost_Enable();
 	channels_Init();
 	adc_Init();
 	usi_Init();

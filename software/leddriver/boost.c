@@ -1036,7 +1036,9 @@ void boost_Init(){
 	/* initialize default voltage/current limits */
 	boost_setCurrent(0);
 	boost_setMaxVoltage(41000);
+}
 
+void boost_Enable(){
 	/* initialize PWM value, start with lowest PWM value */
 	boost.PWM = 0;
 	boost_updatePWM();
@@ -1049,6 +1051,16 @@ void boost_Init(){
 	TCCR0B |= (1<<CS00) | (1<<WGM02);
 	/* set callback to update boost converter */
 	adc_setCallback(boost_Update);
+}
+
+void boost_Disable(){
+	/* set pin high -> FET is off (should already be high, just a safety measure) */
+	PORTA |= (1<<PA7);
+	DDRA |= (1<<PA7);
+	/* disable PWM */
+	TCCR0A = TCCR0B = 0;
+	/*disable ADC callback */
+	adc_setCallback(NULL);
 }
 
 void boost_Update(void){
