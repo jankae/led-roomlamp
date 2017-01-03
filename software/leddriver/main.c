@@ -25,6 +25,10 @@ int main(void){
 	sei();
 
 	while (1) {
+		if (usi.state == USI_PACKET_RECEIVED) {
+			// TODO handle packet
+			usi.state = USI_IDLE;
+		}
 		set_sleep_mode(SLEEP_MODE_IDLE);
 		sleep_mode()
 		;

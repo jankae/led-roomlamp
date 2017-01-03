@@ -14,6 +14,8 @@
 #define USI_ADDRESS			0x01
 /** This must be the last byte received in each transmission */
 #define USI_END_IDENTIFIER	0xFF
+/** Maximum data packet length without address and end identifier */
+#define USI_MAX_DATA		12
 
 /** Possible states of the receiver state machine */
 typedef enum {
@@ -21,18 +23,24 @@ typedef enum {
 	USI_IDLE,
 	/** Address matched, waiting for first byte */
 	USI_ADDRESS_MATCHED,
-	/** First byte received, waiting for second byte */
-	USI_NEXT_BYTE,
+	/** Data packet length received, now waiting for all bytes to be transmitted */
+	USI_LENGTH_RECEIVED,
 	/** All bytes received, waiting for end identifier */
-	USI_EXPECTING_END
+	USI_EXPECTING_END,
+	/** Whole packet has been received */
+	USI_PACKET_RECEIVED
 } usi_state_t;
 
 /** Serial receiver state and received data */
 struct {
 	/** Current state of the receiver state machine */
 	usi_state_t state;
-	/** Last received current value */
-	uint16_t current;
+	/** Data packet payload */
+	uint8_t data[USI_MAX_DATA];
+	/** Length of the current data packet */
+	uint8_t length;
+	/** Number of payload bytes received so far */
+	uint8_t counter;
 } usi;
 
 /**

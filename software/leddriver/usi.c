@@ -29,20 +29,34 @@ ISR(USI_OVF_vect){
 			usi.state = USI_ADDRESS_MATCHED;
 		break;
 	case USI_ADDRESS_MATCHED:
-		/* received first byte of 16 bit current value */
-		usi.current = data;
-		usi.state = USI_NEXT_BYTE;
+		/* receive data length */
+		if (data <= USI_MAX_DATA) {
+			usi.length = data;
+			usi.counter = 0;
+			usi.state = USI_LENGTH_RECEIVED;
+		} else {
+			/* data packet is too long -> reject */
+			usi.state = USI_IDLE;
+		}
 		break;
-	case USI_NEXT_BYTE:
-		/* received second byte of 16 bit current value */
-		usi.current += ((uint16_t) data << 8);
-		usi.state = USI_EXPECTING_END;
+	case USI_LENGTH_RECEIVED:
+		/* receive payload byte */
+		usi.data[usi.counter] = data;
+		usi.counter++;
+		if (usi.counter == usi.length) {
+			/* whole payload received */
+			usi.state = USI_EXPECTING_END;
+		}
 		break;
 	case USI_EXPECTING_END:
 		if (data == USI_END_IDENTIFIER) {
-			/* data transfer completed, set new current value */
-			boost_setCurrent(usi.current);
+			/* data transfer completed */
+			usi.state = USI_PACKET_RECEIVED;
 		}
 		usi.state = USI_IDLE;
+		break;
+	case USI_PACKET_RECEIVED:
+		/* received packet not yet handled -> ignore further data */
+		break;
 	}
 }
