@@ -42,7 +42,7 @@ struct {
 	/** Stores the lastly sampled software channel number */
 	uint8_t lastCnt;
 
-	/** Maps the hardware channel number to the software channels */
+	/** Maps the hardware channel number and reference to the software channels */
 	uint8_t channels[ADC_NUM_CHANNELS];
 } adc;
 

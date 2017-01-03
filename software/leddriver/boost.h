@@ -55,13 +55,14 @@
 
 /** maximum temperature in kelvin */
 #define BOOST_NTC_MAX_K		(BOOST_MAX_TEMP+273.16f)
-/** NTC resistance at maximum temperature */
-#define BOOST_NTC_MIN_R		((int)(BOOST_NTC_REF_R*exp(BOOST_NTC_CONST_A \
-							+BOOST_NTC_CONST_B/BOOST_NTC_MAX_K \
-							+BOOST_NTC_CONST_C/(BOOST_NTC_MAX_K*BOOST_NTC_MAX_K) \
-							+BOOST_NTC_CONST_D/(BOOST_NTC_MAX_K*BOOST_NTC_MAX_K*BOOST_NTC_MAX_K))))
-/** ADC voltage at NTC divider at maximum temperature */
-#define BOOST_NTC_MAX_V		(5000UL*BOOST_NTC_LOW_R/(BOOST_NTC_LOW_R+BOOST_NTC_MIN_R))
+/** NTC resistance at specific temperature in kelvin */
+#define BOOST_NTC_R(temp)	((long)(BOOST_NTC_REF_R*exp(BOOST_NTC_CONST_A \
+							+BOOST_NTC_CONST_B/(temp) \
+							+BOOST_NTC_CONST_C/((temp)*(temp)) \
+							+BOOST_NTC_CONST_D/((temp)*(temp)*(temp)))))
+/** ADC voltage at NTC divider at specific temperature in °C */
+#define BOOST_NTC_ADC_V(temp)	(5000UL*BOOST_NTC_LOW_R/(BOOST_NTC_LOW_R \
+								+BOOST_NTC_R((temp##UL)+273.16f)))
 /** @} */
 
 /**
@@ -89,6 +90,10 @@ struct {
 	uint16_t maxTempRaw;
 	/** selected entry in duty cycle lookup-table */
 	uint16_t dutyCycleIt;
+	/** boost converter operating */
+	uint8_t isEnabled;
+	/** boost converter activated (not necessary enabled if too hot) */
+	uint8_t active;
 } boost;
 
 /**
@@ -126,6 +131,15 @@ void boost_setCurrent(uint16_t mA);
  * \param mV Maximum voltage in mV
  */
 void boost_setMaxVoltage(uint16_t mV);
+
+/**
+ * \brief Sets the temperature limit of the boost converter
+ *
+ * The temperature is only set with a resolution of 10°C
+ *
+ * \param deg Maximum temperature in °C
+ */
+void boost_setMaxTemperature(uint8_t deg);
 
 /**
  * \brief Extracts the compare and top values corresponding to current duty cycle
