@@ -16,7 +16,7 @@ MIN_FREQ = 78125;
 
 
 # Minimum duty cycle
-MIN_DUTY = 50;
+MIN_DUTY = 1;
 # Maximum duty cycle
 MAX_DUTY = 70;
 

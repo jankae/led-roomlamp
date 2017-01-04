@@ -22,15 +22,15 @@
  * @{
  */
 /** voltage sensing factor (voltage divider factor) */
-#define BOOST_VOL_SENS_FACT	48
+#define BOOST_VOL_SENS_FACT	40
 /** current sensing shunt in mOhm */
 #define BOOST_SHUNT_VALUE	1000
 /** maximum allowed temperature in °C */
-#define BOOST_MAX_TEMP		80
+#define BOOST_MAX_TEMP		150
 /** NTC Reference resistance (at 25°C) in Ohm */
 #define BOOST_NTC_REF_R		10000
 /** constant resistor value in NTC voltage divider in Ohm */
-#define BOOST_NTC_LOW_R		3300
+#define BOOST_NTC_LOW_R		1000
 /** NTC constant A (see datasheet) */
 #define BOOST_NTC_CONST_A	-14.6337f
 /** NTC constant B (see datasheet) */
@@ -62,7 +62,7 @@
 							+BOOST_NTC_CONST_C/((temp)*(temp)) \
 							+BOOST_NTC_CONST_D/((temp)*(temp)*(temp)))))
 /** ADC voltage at NTC divider at specific temperature in °C */
-#define BOOST_NTC_ADC_V(temp)	(5000UL*BOOST_NTC_LOW_R/(BOOST_NTC_LOW_R \
+#define BOOST_NTC_ADC_V(temp)	(1162UL*BOOST_NTC_LOW_R/(BOOST_NTC_LOW_R \
 								+BOOST_NTC_R((temp##UL)+273.16f)))
 /** @} */
 
@@ -71,13 +71,13 @@
  */
 struct {
 	/** Raw ADC value for boost converter current limit */
-	uint16_t setCurrentRaw;
+	int16_t setCurrentRaw;
 	/** Raw ADC value for boost converter voltage limit */
-	uint16_t setVoltageRaw;
+	int16_t setVoltageRaw;
 	/** Raw ADC value for boost converter temperature limit */
-	uint16_t maxTempRaw;
+	int16_t maxTempRaw;
 	/** selected entry in duty cycle lookup-table */
-	uint16_t dutyCycleIt;
+	int16_t dutyCycleIt;
 	/** boost converter operating */
 	uint8_t isEnabled;
 	/** boost converter activated (not necessary enabled if too hot) */

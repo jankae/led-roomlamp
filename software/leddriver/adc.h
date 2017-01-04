@@ -32,15 +32,20 @@
 /** ADC data and state of ADC conversion state machine */
 struct {
 	/** contains automatically updated raw ADC values for all channels */
-	uint16_t raw[ADC_NUM_CHANNELS];
+	int16_t raw[ADC_NUM_CHANNELS];
 
-	/** Callback function which will be called after each conversion cycle */
-	void (*callback)(void);
+//	/** Callback function which will be called after each conversion cycle */
+//	void (*callback)(void);
+
+	uint8_t newData;
 
 	/** Contains the currently sampled software channel number */
 	uint8_t cnt;
 	/** Stores the lastly sampled software channel number */
 	uint8_t lastCnt;
+	uint8_t cycleCnt;
+
+	uint16_t rawSum[ADC_NUM_CHANNELS];
 
 	/** Maps the hardware channel number and reference to the software channels */
 	uint8_t channels[ADC_NUM_CHANNELS];
@@ -52,13 +57,6 @@ struct {
  * Sets up the channels, the reference and starts the ADC in free-running mode
  */
 void adc_Init();
-
-/**
- * \brief Sets the callback function
- *
- * \param cb Callback function to be called (NULL pointer if no function should be called)
- */
-void adc_setCallback(void (*cb)());
 
 /**
  * \brief ADC interrupt routine
