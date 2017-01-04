@@ -12,6 +12,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "adc.h"
+#include "channels.h"
 
 /**
  * \name Boost converter settings
@@ -63,19 +64,6 @@
 /** ADC voltage at NTC divider at specific temperature in °C */
 #define BOOST_NTC_ADC_V(temp)	(5000UL*BOOST_NTC_LOW_R/(BOOST_NTC_LOW_R \
 								+BOOST_NTC_R((temp##UL)+273.16f)))
-/** @} */
-
-/**
- * \name Fixed registers
- * The compare and top values of the PWM generating counter
- * are assigned permanently to registers. This way, they can be
- * transferred to the corresponding counter registers very fast
- * and enable the usage of a "naked ISR".
- *
- * @{
- */
-register uint8_t compare asm("r2");
-register uint8_t top asm("r3");
 /** @} */
 
 /**
@@ -145,14 +133,5 @@ void boost_setMaxTemperature(uint8_t deg);
  * \brief Extracts the compare and top values corresponding to current duty cycle
  */
 void boost_updatePWM(void);
-
-/**
- * \brief Timer Overflow routine
- *
- * Called when the PWM generating timer reaches the "top" value and new
- * compare/top values have been calculated. This function copies the compare/top
- * values into the corresponding timer registers.
- */
-ISR(TIM0_OVF_vect) __attribute__ ((naked));
 
 #endif

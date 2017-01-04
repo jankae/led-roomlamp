@@ -12,7 +12,7 @@ AVRSIZE = avr-size
 AVRDUDE = avrdude
 
 EFUSE = 0xFF
-HFUSE = 0xDF
+HFUSE = 0xDC
 LFUSE = 0xEF
 
 ##########------------------------------------------------------##########
@@ -35,7 +35,7 @@ OBJECTS=$(SOURCES:.c=.o)
 HEADERS=$(SOURCES:.c=.h)
 
 ## Compilation options, type man avr-gcc if you're curious.
-CFLAGS = -Os -g -std=gnu99 -Wall -Wextra -DF_CPU=$(F_CPU) -ffixed-r2 -ffixed-r3
+CFLAGS = -Os -g -std=gnu99 -Wall -Wextra -DF_CPU=$(F_CPU)
 
 ## Use short (8-bit) data types 
 CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums 
