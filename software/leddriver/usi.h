@@ -34,7 +34,7 @@ typedef enum {
 /** Serial receiver state and received data */
 struct {
 	/** Current state of the receiver state machine */
-	usi_state_t state;
+	volatile usi_state_t state;
 	/** Data packet payload */
 	uint8_t data[USI_MAX_DATA];
 	/** Length of the current data packet */
