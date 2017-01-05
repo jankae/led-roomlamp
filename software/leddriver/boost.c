@@ -1037,12 +1037,12 @@ const uint8_t PWM_LOOKUP[][2] PROGMEM = {
 
 void boost_Init() {
 	/* setup PWM on OC0B (PA7) */
-	/* initially set pin high -> FET is off */
-	PORTA |= (1 << PA7);
+	/* initially set pin low -> FET is off */
+	PORTA &= ~(1 << PA7);
 	DDRA |= (1 << PA7);
 
 	/* initialize default voltage/current limits */
-	boost_setCurrent(20);
+	boost_setCurrent(0);
 	boost_setMaxVoltage(37000);
 	boost_setMaxTemperature(BOOST_MAX_TEMP);
 
@@ -1057,16 +1057,16 @@ void boost_Enable() {
 	/* initialize PWM value, start with lowest PWM value */
 	boost.dutyCycleIt = 0;
 	boost_updatePWM();
-	/* set inverting fast PWM mode, using OCR0A as TOP */
-	TCCR0A |= (1 << COM0B0) | (1 << COM0B1) | (1 << WGM01) | (1 << WGM00);
+	/* set non-inverting fast PWM mode, using OCR0A as TOP */
+	TCCR0A |= (1 << COM0B1) | (1 << WGM01) | (1 << WGM00);
 	/* set PWM as fast as possible, results in 78kHz PWM frequency */
 	TCCR0B |= (1 << CS00) | (1 << WGM02);
 	boost.isEnabled = 1;
 }
 
 void boost_Disable() {
-	/* set pin high -> FET is off (should already be high, just a safety measure) */
-	PORTA |= (1 << PA7);
+	/* set pin low -> FET is off (should already be low, just a safety measure) */
+	PORTA &= ~(1 << PA7);
 	DDRA |= (1 << PA7);
 	/* disable PWM */
 	TCCR0A = TCCR0B = 0;
@@ -1086,26 +1086,24 @@ void boost_Update(void) {
 	if (boost.isEnabled) {
 		if (adc.raw[ADC_VOLTAGE] > boost.setVoltageRaw) {
 			/* voltage at limit -> decrease duty cycle */
-			if (boost.dutyCycleIt > 0) {
-				boost.dutyCycleIt--;
-				boost_updatePWM();
-			}
+			boost.dutyCycleIt--;
 		} else {
 			/* voltage not at limit -> control current */
-			if(adc.raw[ADC_CURRENT] > boost.setCurrentRaw + 2){
-				/* current above limit -> decrease duty cycle */
-				if (boost.dutyCycleIt > 0) {
-					boost.dutyCycleIt--;
-					boost_updatePWM();
-				}
-			} else if (adc.raw[ADC_CURRENT] < boost.setCurrentRaw - 2) {
-				/* current below limit -> increase duty cycle */
-				if (boost.dutyCycleIt < sizeof(PWM_LOOKUP) / 2 - 1) {
-					boost.dutyCycleIt++;
-					boost_updatePWM();
-				}
+			int16_t currDiff = boost.setCurrentRaw - adc.raw[ADC_CURRENT];
+			/* change duty cycle */
+			int16_t change = currDiff / 5;
+			if (change > 10) {
+				change = 10;
+			} else if (change < -10) {
+				change = -10;
 			}
+			boost.dutyCycleIt += change;
 		}
+		if (boost.dutyCycleIt < 0)
+			boost.dutyCycleIt = 0;
+		else if (boost.dutyCycleIt > (int16_t) (sizeof(PWM_LOOKUP) / 2 - 1))
+			boost.dutyCycleIt = sizeof(PWM_LOOKUP) / 2 - 1;
+		boost_updatePWM();
 	}
 }
 
