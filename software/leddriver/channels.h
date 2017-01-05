@@ -6,6 +6,9 @@
 #define CHANNELS_H_
 
 #include <avr/io.h>
+#include <util/delay.h>
+
+#define CH1_SOFTUART	0
 
 /**
  * \name Port defines for the three auxiliary channels
@@ -48,5 +51,11 @@
  * \brief Initializes the control pins for the external channels
  */
 void channels_Init(void);
+
+#if CH1_SOFTUART
+void CH1_SendString(uint8_t *s);
+
+void CH1_SendChar(uint8_t c);
+#endif
 
 #endif
