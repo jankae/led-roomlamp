@@ -4,6 +4,8 @@ void usi_InitI2C(uint8_t ownAddress) {
 	/* store own address */
 	usi.address = ownAddress;
 
+	usi.state = USI_SLAVE_IDLE;
+
 	/* set SCL and SDA high */
 	PORT_USI |= (1 << PORT_USI_SCL);
 	PORT_USI |= (1 << PORT_USI_SDA);
@@ -17,9 +19,17 @@ void usi_InitI2C(uint8_t ownAddress) {
 	USISR = (1 << USISIF) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC);
 }
 
+void usi_CheckForStop(void) {
+	if(USISR & (1<<USIPF)){
+		/* Stop flag is set */
+		usi.state = USI_SLAVE_IDLE;
+		USISR |= (1<<USIPF);
+	}
+}
+
 ISR(USI_START_vect) {
 	/* Default conditions for I2C packet */
-	usi.overflowState = USI_SLAVE_CHECK_ADDRESS;
+	usi.state = USI_SLAVE_CHECK_ADDRESS;
 	/* SDA as input */
 	DDR_USI &= ~(1 << PORT_USI_SDA);
 
@@ -39,22 +49,23 @@ ISR(USI_START_vect) {
 
 ISR(USI_OVF_vect) {
 	uint8_t data = 0;
-	switch (usi.overflowState) {
+	switch (usi.state) {
 	case USI_SLAVE_CHECK_ADDRESS:
 		/* check address and send */
 		if ((USIDR == 0) || (USIDR & 0xFE) == usi.address) {
 			/* general call or address matched */
 			if ( USIDR & 0x01) {
 				/* slave transmitter mode */
-				usi.overflowState = USI_SLAVE_SEND_DATA;
+				usi.state = USI_SLAVE_SEND_DATA;
 			} else {
 				/* slave receiver mode */
-				usi.overflowState = USI_SLAVE_REQUEST_DATA;
+				usi.state = USI_SLAVE_REQUEST_DATA;
 				/* undefined index position */
 				usi.index = 0xFF;
 			}
 			SET_USI_TO_SEND_ACK();
 		} else {
+			usi.state = USI_SLAVE_IDLE;
 			SET_USI_TO_TWI_START_CONDITION_MODE();
 		}
 		break;
@@ -62,6 +73,7 @@ ISR(USI_OVF_vect) {
 		/* check for ACK and send next data if requested */
 		if ( USIDR) {
 			/* no ACK, master doesn't want more data */
+			usi.state = USI_SLAVE_IDLE;
 			SET_USI_TO_TWI_START_CONDITION_MODE();
 			return;
 		}
@@ -78,19 +90,19 @@ ISR(USI_OVF_vect) {
 		/* increment index with wrap-around */
 		usi.index = (usi.index + 1) & USI_INDEX_MASK;
 
-		usi.overflowState = USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA;
+		usi.state = USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA;
 		SET_USI_TO_SEND_DATA();
 		break;
 
 	case USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA:
 		/* data has been send, prepare to read ACK */
-		usi.overflowState = USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA;
+		usi.state = USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA;
 		SET_USI_TO_READ_ACK();
 		break;
 
 	case USI_SLAVE_REQUEST_DATA:
 		/* ACK has been sent, now prepare to receive data */
-		usi.overflowState = USI_SLAVE_GET_DATA_AND_SEND_ACK;
+		usi.state = USI_SLAVE_GET_DATA_AND_SEND_ACK;
 		SET_USI_TO_READ_DATA();
 		break;
 
@@ -106,7 +118,7 @@ ISR(USI_OVF_vect) {
 			/* increment index with wrap-around */
 			usi.index = (usi.index + 1) & USI_INDEX_MASK;
 		}
-		usi.overflowState = USI_SLAVE_REQUEST_DATA;
+		usi.state = USI_SLAVE_REQUEST_DATA;
 		SET_USI_TO_SEND_ACK();
 		break;
 	}

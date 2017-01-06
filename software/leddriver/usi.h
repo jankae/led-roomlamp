@@ -61,8 +61,8 @@
 #define USI_DATA_SIZE 			16
 #define USI_INDEX_MASK			(USI_DATA_SIZE - 1)
 
-#define USI_REG_CTRL			0
-#define USI_REG_VERSION			1
+#define USI_REG_W_CTRL			0
+#define USI_REG_R_VERSION		1
 #define USI_REG_W_CURRENT_LOW	2
 #define USI_REG_W_CURRENT_HIGH	3
 #define USI_REG_W_VOLTAGE_LOW	4
@@ -73,23 +73,32 @@
 #define USI_REG_R_CURRENT_HIGH	9
 #define USI_REG_R_VOLTAGE_LOW	10
 #define USI_REG_R_VOLTAGE_HIGH	11
+#define USI_REG_R_DUTY_IDX_LOW	12
+#define USI_REG_R_DUTY_IDX_HIGH	13
+#define USI_REG_R_COMPARE_VALUE	14
+#define USI_REG_R_TOP_VALUE		15
+
+#define USI_CTRL_UPDATE			0x01
 
 typedef enum {
-	USI_SLAVE_CHECK_ADDRESS = 0x00,
-	USI_SLAVE_SEND_DATA = 0x01,
-	USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA = 0x02,
-	USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA = 0x03,
-	USI_SLAVE_REQUEST_DATA = 0x04,
-	USI_SLAVE_GET_DATA_AND_SEND_ACK = 0x05
-} overflowState_t;
+	USI_SLAVE_CHECK_ADDRESS,
+	USI_SLAVE_SEND_DATA,
+	USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA,
+	USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA,
+	USI_SLAVE_REQUEST_DATA,
+	USI_SLAVE_GET_DATA_AND_SEND_ACK,
+	USI_SLAVE_IDLE
+} usi_I2CState_t;
 
 struct {
 	uint8_t address;
-	overflowState_t overflowState;
+	usi_I2CState_t state;
 	uint8_t data[USI_DATA_SIZE];
 	uint8_t index;
 } usi;
 
 void usi_InitI2C(uint8_t ownAddress);
+
+void usi_CheckForStop(void);
 
 #endif
