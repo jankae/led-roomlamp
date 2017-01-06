@@ -55,15 +55,29 @@ int main(void){
 		if (adc.newData) {
 			boost_Update();
 			adc.newData = 0;
+			/* update values in USI registers */
+			cli();
+			if(usi.state == USI_SLAVE_IDLE){
+				/* only update 16 bit values if no transaction is active */
+				usi.data[USI_REG_R_DUTY_IDX_LOW] = boost.dutyCycleIt & 0xff;
+				usi.data[USI_REG_R_DUTY_IDX_HIGH] = boost.dutyCycleIt >> 8;
+
+				usi.data[USI_REG_R_CURRENT_LOW] = boost.current & 0xff;
+				usi.data[USI_REG_R_CURRENT_HIGH] = boost.current >> 8;
+
+				usi.data[USI_REG_R_VOLTAGE_LOW] = boost.voltage & 0xff;
+				usi.data[USI_REG_R_VOLTAGE_HIGH] = boost.voltage >> 8;
+			}
+			sei();
+			/* 8 bit values may always be updated */
+			usi.data[USI_REG_R_COMPARE_VALUE] = OCR0B;
+			usi.data[USI_REG_R_TOP_VALUE] = OCR0A;
+			usi.data[USI_REG_R_TEMP] = boost.temperature;
 		}
 		/* Stop condition doesn't trigger an interrupt -> poll it */
 		usi_CheckForStop();
-		/* choose deepest sleep mode possible with current state */
-		if (!boost.active && usi.state == USI_SLAVE_IDLE) {
-			set_sleep_mode(SLEEP_MODE_PWR_SAVE);
-		} else {
-			set_sleep_mode(SLEEP_MODE_IDLE);
-		}
+
+		set_sleep_mode(SLEEP_MODE_IDLE);
 		sleep_mode()
 		;
 	}

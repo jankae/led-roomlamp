@@ -963,77 +963,44 @@ const uint8_t PWM_LOOKUP[][2] PROGMEM = {
 		{ 0x8d, 0xda }, 	// Duty cycle = 64.84
 		{ 0x93, 0xe3 }, 	// Duty cycle = 64.91
 		{ 0x7f, 0xc4 }, 	// Duty cycle = 64.97
-		{ 0x9f, 0xf5 }, 	// Duty cycle = 65.04
-		{ 0x8b, 0xd6 }, 	// Duty cycle = 65.12
-		{ 0x91, 0xdf }, 	// Duty cycle = 65.18
-		{ 0x6a, 0xa3 }, 	// Duty cycle = 65.24
-		{ 0x90, 0xdd }, 	// Duty cycle = 65.32
-		{ 0x98, 0xe9 }, 	// Duty cycle = 65.38
-		{ 0x7c, 0xbe }, 	// Duty cycle = 65.45
-		{ 0x97, 0xe7 }, 	// Duty cycle = 65.52
-		{ 0x8c, 0xd6 }, 	// Duty cycle = 65.58
-		{ 0x6a, 0xa2 }, 	// Duty cycle = 65.64
-		{ 0xa0, 0xf4 }, 	// Duty cycle = 65.71
-		{ 0x93, 0xe0 }, 	// Duty cycle = 65.78
-		{ 0xa1, 0xf5 }, 	// Duty cycle = 65.85
-		{ 0x92, 0xde }, 	// Duty cycle = 65.92
-		{ 0x7f, 0xc1 }, 	// Duty cycle = 65.98
-		{ 0x8d, 0xd6 }, 	// Duty cycle = 66.05
-		{ 0x9f, 0xf1 }, 	// Duty cycle = 66.12
-		{ 0x88, 0xce }, 	// Duty cycle = 66.18
-		{ 0x9e, 0xef }, 	// Duty cycle = 66.25
-		{ 0x7d, 0xbd }, 	// Duty cycle = 66.32
-		{ 0x9b, 0xea }, 	// Duty cycle = 66.38
-		{ 0x66, 0x9a }, 	// Duty cycle = 66.45
-		{ 0x92, 0xdc }, 	// Duty cycle = 66.52
-		{ 0xa9, 0xfe }, 	// Duty cycle = 66.67
-		{ 0xa9, 0xfe }, 	// Duty cycle = 66.67
-		{ 0xa8, 0xfc }, 	// Duty cycle = 66.80
-		{ 0xa8, 0xfc }, 	// Duty cycle = 66.80
-		{ 0x78, 0xb4 }, 	// Duty cycle = 66.85
-		{ 0x56, 0x81 }, 	// Duty cycle = 66.92
-		{ 0x8b, 0xd0 }, 	// Duty cycle = 66.99
-		{ 0x73, 0xac }, 	// Duty cycle = 67.05
-		{ 0x92, 0xda }, 	// Duty cycle = 67.12
-		{ 0x80, 0xbf }, 	// Duty cycle = 67.19
-		{ 0x97, 0xe1 }, 	// Duty cycle = 67.26
-		{ 0x66, 0x98 }, 	// Duty cycle = 67.32
-		{ 0x9a, 0xe5 }, 	// Duty cycle = 67.39
-		{ 0x71, 0xa8 }, 	// Duty cycle = 67.46
-		{ 0x9d, 0xe9 }, 	// Duty cycle = 67.52
-		{ 0xaa, 0xfc }, 	// Duty cycle = 67.59
-		{ 0x9e, 0xea }, 	// Duty cycle = 67.66
-		{ 0x7f, 0xbc }, 	// Duty cycle = 67.72
-		{ 0x9f, 0xeb }, 	// Duty cycle = 67.80
-		{ 0xaa, 0xfb }, 	// Duty cycle = 67.86
-		{ 0x8f, 0xd3 }, 	// Duty cycle = 67.92
-		{ 0xa9, 0xf9 }, 	// Duty cycle = 68.00
-		{ 0x81, 0xbe }, 	// Duty cycle = 68.06
-		{ 0x6c, 0x9f }, 	// Duty cycle = 68.12
-		{ 0xa2, 0xee }, 	// Duty cycle = 68.20
-		{ 0x9c, 0xe5 }, 	// Duty cycle = 68.26
-		{ 0xa3, 0xef }, 	// Duty cycle = 68.33
-		{ 0x83, 0xc0 }, 	// Duty cycle = 68.39
-		{ 0x58, 0x81 }, 	// Duty cycle = 68.46
-		{ 0x86, 0xc4 }, 	// Duty cycle = 68.53
-		{ 0xa5, 0xf1 }, 	// Duty cycle = 68.60
-		{ 0x94, 0xd8 }, 	// Duty cycle = 68.66
-		{ 0xa4, 0xef }, 	// Duty cycle = 68.75
-		{ 0xab, 0xf9 }, 	// Duty cycle = 68.80
-		{ 0x91, 0xd3 }, 	// Duty cycle = 68.87
-		{ 0x8d, 0xcd }, 	// Duty cycle = 68.93
-		{ 0x89, 0xc7 }, 	// Duty cycle = 69.00
-		{ 0x5f, 0x8a }, 	// Duty cycle = 69.06
-		{ 0xa7, 0xf2 }, 	// Duty cycle = 69.14
-		{ 0xa3, 0xec }, 	// Duty cycle = 69.20
-		{ 0x96, 0xd9 }, 	// Duty cycle = 69.27
-		{ 0x9b, 0xe0 }, 	// Duty cycle = 69.33
-		{ 0x7e, 0xb6 }, 	// Duty cycle = 69.40
-		{ 0x9c, 0xe1 }, 	// Duty cycle = 69.47
-		{ 0x98, 0xdb }, 	// Duty cycle = 69.55
-		{ 0xad, 0xf9 }  	// Duty cycle = 69.60
+		{ 0x9f, 0xf5 } 	// Duty cycle = 65.04
 };
 
+const uint8_t NTC_LOOKUP[33] PROGMEM = {
+		0x00, 	// ADC=0, Temperature=0
+		0x04, 	// ADC=32, Temperature=4
+		0x13, 	// ADC=64, Temperature=19
+		0x1d, 	// ADC=96, Temperature=29
+		0x24, 	// ADC=128, Temperature=36
+		0x2b, 	// ADC=160, Temperature=43
+		0x31, 	// ADC=192, Temperature=49
+		0x36, 	// ADC=224, Temperature=54
+		0x3b, 	// ADC=256, Temperature=59
+		0x3f, 	// ADC=288, Temperature=63
+		0x43, 	// ADC=320, Temperature=67
+		0x48, 	// ADC=352, Temperature=72
+		0x4c, 	// ADC=384, Temperature=76
+		0x50, 	// ADC=416, Temperature=80
+		0x54, 	// ADC=448, Temperature=84
+		0x58, 	// ADC=480, Temperature=88
+		0x5c, 	// ADC=512, Temperature=92
+		0x60, 	// ADC=544, Temperature=96
+		0x64, 	// ADC=576, Temperature=100
+		0x68, 	// ADC=608, Temperature=104
+		0x6d, 	// ADC=640, Temperature=109
+		0x72, 	// ADC=672, Temperature=114
+		0x77, 	// ADC=704, Temperature=119
+		0x7c, 	// ADC=736, Temperature=124
+		0x82, 	// ADC=768, Temperature=130
+		0x88, 	// ADC=800, Temperature=136
+		0x8f, 	// ADC=832, Temperature=143
+		0x97, 	// ADC=864, Temperature=151
+		0xa0, 	// ADC=896, Temperature=160
+		0xab, 	// ADC=928, Temperature=171
+		0xb9, 	// ADC=960, Temperature=185
+		0xcc, 	// ADC=992, Temperature=204
+		0xe9 	// ADC=1024, Temperature=233
+};
 
 void boost_Init() {
 	/* setup PWM on OC0B (PA7) */
@@ -1074,22 +1041,34 @@ void boost_Disable() {
 }
 
 void boost_Update(void) {
+	/* calculate values from raw ADC data */
+	boost.current = (adc.raw[ADC_CURRENT] * 100000UL)
+			/ (93UL * BOOST_SHUNT_VALUE);
+	boost.voltage = (adc.raw[ADC_VOLTAGE] * 100UL * BOOST_VOL_SENS_FACT) / 93;
+
+	/* interpolate temperature from lookup-table */
+	uint8_t index = adc.raw[ADC_TEMPERATURE] / 32;
+	uint8_t interpolate = adc.raw[ADC_TEMPERATURE] % 32;
+	boost.temperature = pgm_read_byte(&NTC_LOOKUP[index]);
+	boost.temperature += (pgm_read_byte(&NTC_LOOKUP[index + 1])
+			- boost.temperature) * interpolate / 32;
+
 	if (!boost.isEnabled && boost.active
-			&& (boost.maxTempRaw >= adc.raw[ADC_TEMPERATURE])) {
+			&& (boost.maxTemp >= boost.temperature)) {
 		/* was disabled, now active and temperature is OK */
 		boost_Enable();
 	} else if (boost.isEnabled
-			&& (!boost.active || (boost.maxTempRaw < adc.raw[ADC_TEMPERATURE]))) {
+			&& (!boost.active || (boost.maxTemp < boost.temperature))) {
 		/* was active, now disabled or temperature too hot */
 		boost_Disable();
 	}
 	if (boost.isEnabled) {
-		if (adc.raw[ADC_VOLTAGE] > boost.setVoltageRaw) {
+		if (boost.voltage > boost.setVoltage) {
 			/* voltage at limit -> decrease duty cycle */
 			boost.dutyCycleIt--;
 		} else {
 			/* voltage not at limit -> control current */
-			int16_t currDiff = boost.setCurrentRaw - adc.raw[ADC_CURRENT];
+			int16_t currDiff = boost.setCurrent - boost.current;
 			/* change duty cycle */
 			int16_t change = currDiff / 5;
 			if (change > 10) {
@@ -1111,61 +1090,22 @@ void boost_setCurrent(uint16_t mA) {
 	if (mA > BOOST_MAX_CURRENT)
 		/* limit current to maximum */
 		mA = BOOST_MAX_CURRENT;
-	/* calculate raw ADC value for given current */
-	uint16_t adcVoltage = ((uint32_t) mA * BOOST_SHUNT_VALUE) / 1000;
-	/* convert from voltage in mV to raw ADC (10bit, 1V1 reference) */
-	boost.setCurrentRaw = ((uint32_t) adcVoltage * 93) / 100;
+	boost.setCurrent = mA;
 }
 
 void boost_setMaxVoltage(uint16_t mV) {
 	if (mV > BOOST_MAX_VOLTAGE)
 		/* limit voltage to maximum */
 		mV = BOOST_MAX_VOLTAGE;
-	/* calculate raw ADC value for given voltage */
-	uint16_t adcVoltage = mV / BOOST_VOL_SENS_FACT;
-	/* convert from voltage in mV to raw ADC (10bit, 1V1 reference) */
-	boost.setVoltageRaw = ((uint32_t) adcVoltage * 93) / 100;
+	boost.setVoltage = mV;
 }
 
 void boost_setMaxTemperature(uint8_t deg) {
-	/* limit maximum temperature */
-	if (deg > 180)
-		deg = 180;
-	/* round to nearest decade */
-	deg = ((uint16_t)deg + 5) / 10;
-	uint16_t lookup[19] = {
-			BOOST_NTC_ADC_V(0),
-			BOOST_NTC_ADC_V(10),
-			BOOST_NTC_ADC_V(20),
-			BOOST_NTC_ADC_V(30),
-			BOOST_NTC_ADC_V(40),
-			BOOST_NTC_ADC_V(50),
-			BOOST_NTC_ADC_V(60),
-			BOOST_NTC_ADC_V(70),
-			BOOST_NTC_ADC_V(80),
-			BOOST_NTC_ADC_V(90),
-			BOOST_NTC_ADC_V(100),
-			BOOST_NTC_ADC_V(110),
-			BOOST_NTC_ADC_V(120),
-			BOOST_NTC_ADC_V(130),
-			BOOST_NTC_ADC_V(140),
-			BOOST_NTC_ADC_V(150),
-			BOOST_NTC_ADC_V(160),
-			BOOST_NTC_ADC_V(170),
-			BOOST_NTC_ADC_V(180),
-	};
-	uint16_t adcVoltage = lookup[deg];
-	/* convert from voltage in mV to raw ADC (10bit, 1V1 reference) */
-	boost.maxTempRaw = ((uint32_t) adcVoltage * 93) / 100;
+	boost.maxTemp = deg;
 }
 
 void boost_updatePWM(void) {
 	/* extract PWM generation values and store in registers */
 	OCR0B = pgm_read_byte(&PWM_LOOKUP[boost.dutyCycleIt][0]);
 	OCR0A = pgm_read_byte(&PWM_LOOKUP[boost.dutyCycleIt][1]);
-	/* store boost state in USI registers */
-	usi.data[USI_REG_R_DUTY_IDX_LOW] = boost.dutyCycleIt & 0xff;
-	usi.data[USI_REG_R_DUTY_IDX_HIGH] = boost.dutyCycleIt >> 8;
-	usi.data[USI_REG_R_COMPARE_VALUE] = OCR0B;
-	usi.data[USI_REG_R_TOP_VALUE] = OCR0A;
 }
