@@ -8,14 +8,14 @@
 #include "channels.h"
 #include "adc.h"
 #include "usi.h"
-
 #include <util/delay.h>
+#include "usi.h"
 
 int main(void){
 	boost_Init();
 	channels_Init();
 	adc_Init();
-	usi_Init();
+	usi_InitI2C(0b00110100);
 
 	/* disable analog comparator */
 	ACSR |= (1<<ACD);
@@ -26,21 +26,21 @@ int main(void){
 	sei();
 
 	while (1) {
-		if (usi.state == USI_PACKET_RECEIVED) {
-			uint16_t current;
-			switch (usi.data[0]) {
-			case 0:
-				current = usi.data[1] + ((uint16_t) usi.data[2] << 8);
-				boost_setCurrent(current);
-				if (current > 0) {
-					boost.active = 1;
-				} else {
-					boost.active = 0;
-				}
-				break;
-			}
-			usi.state = USI_IDLE;
-		}
+//		if (usi.state == USI_PACKET_RECEIVED) {
+//			uint16_t current;
+//			switch (usi.data[0]) {
+//			case 0:
+//				current = usi.data[1] + ((uint16_t) usi.data[2] << 8);
+//				boost_setCurrent(current);
+//				if (current > 0) {
+//					boost.active = 1;
+//				} else {
+//					boost.active = 0;
+//				}
+//				break;
+//			}
+//			usi.state = USI_IDLE;
+//		}
 		if (adc.newData) {
 			boost_Update();
 			adc.newData = 0;

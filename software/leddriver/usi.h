@@ -1,59 +1,95 @@
-/**
- * \file
- * \brief Serial interface and protocol implementation
- */
-
-#ifndef USI_H_
-#define USI_H_
+#ifndef _USI_H_
+#define _USI_H_
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "boost.h"
 
-/** This address must be matched in order to start listening */
-#define USI_ADDRESS			0x01
-/** This must be the last byte received in each transmission */
-#define USI_END_IDENTIFIER	0xFF
-/** Maximum data packet length without address and end identifier */
-#define USI_MAX_DATA		12
+#define DDR_USI             DDRA
+#define PORT_USI            PORTA
+#define PIN_USI             PINA
+#define PORT_USI_SDA        PA6
+#define PORT_USI_SCL        PA4
+#define USI_START_COND_INT 	USISIF
 
-/** Possible states of the receiver state machine */
+#define SET_USI_TO_SEND_ACK()                                                                                          \
+	{                                                                                                                  \
+		USIDR = 0;                      /* Prepare ACK                         */                                      \
+		DDR_USI |= (1 << PORT_USI_SDA); /* Set SDA as output                   */                                      \
+		USISR = (0 << USI_START_COND_INT) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC)                                \
+		        |                  /* Clear all flags, except Start Cond  */                                           \
+		        (0x0E << USICNT0); /* set USI counter to shift 1 bit. */                                               \
+	}
+
+#define SET_USI_TO_READ_ACK()                                                                                          \
+	{                                                                                                                  \
+		DDR_USI &= ~(1 << PORT_USI_SDA); /* Set SDA as intput */                                                       \
+		USIDR = 0;                       /* Prepare ACK        */                                                      \
+		USISR = (0 << USI_START_COND_INT) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC)                                \
+		        |                  /* Clear all flags, except Start Cond  */                                           \
+		        (0x0E << USICNT0); /* set USI counter to shift 1 bit. */                                               \
+	}
+
+#define SET_USI_TO_TWI_START_CONDITION_MODE()                                                                          \
+	{                                                                                                                  \
+		USICR = (1 << USISIE) | (0 << USIOIE) | /* Enable Start Condition Interrupt. Disable Overflow Interrupt.*/     \
+		        (1 << USIWM1) | (0 << USIWM0) | /* Set USI in Two-wire mode. No USI Counter overflow hold.      */     \
+		        (1 << USICS1) | (0 << USICS0) | (0 << USICLK)                                                          \
+		        | /* Shift Register Clock Source = External, positive edge        */                                   \
+		        (0 << USITC);                                                                                          \
+		USISR = (0 << USI_START_COND_INT) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC)                                \
+		        | /* Clear all flags, except Start Cond                            */                                  \
+		        (0x0 << USICNT0);                                                                                      \
+	}
+
+#define SET_USI_TO_SEND_DATA()                                                                                         \
+	{                                                                                                                  \
+		DDR_USI |= (1 << PORT_USI_SDA); /* Set SDA as output                  */                                       \
+		USISR = (0 << USI_START_COND_INT) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC)                                \
+		        |                 /* Clear all flags, except Start Cond */                                             \
+		        (0x0 << USICNT0); /* set USI to shift out 8 bits        */                                             \
+	}
+
+#define SET_USI_TO_READ_DATA()                                                                                         \
+	{                                                                                                                  \
+		DDR_USI &= ~(1 << PORT_USI_SDA); /* Set SDA as input                   */                                      \
+		USISR = (0 << USI_START_COND_INT) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC)                                \
+		        |                 /* Clear all flags, except Start Cond */                                             \
+		        (0x0 << USICNT0); /* set USI to shift out 8 bits        */                                             \
+	}
+
+/** Size if I2C buffer. Has to be a power of 2 (e.g. 2,4,8,16...) */
+#define USI_DATA_SIZE 			16
+#define USI_INDEX_MASK			(USI_DATA_SIZE - 1)
+
+#define USI_REG_CTRL			0
+#define USI_REG_VERSION			1
+#define USI_REG_W_CURRENT_LOW	2
+#define USI_REG_W_CURRENT_HIGH	3
+#define USI_REG_W_VOLTAGE_LOW	4
+#define USI_REG_W_VOLTAGE_HIGH	5
+#define USI_REG_W_TEMP_LIMIT	6
+#define USI_REG_R_TEMP			7
+#define USI_REG_R_CURRENT_LOW	8
+#define USI_REG_R_CURRENT_HIGH	9
+#define USI_REG_R_VOLTAGE_LOW	10
+#define USI_REG_R_VOLTAGE_HIGH	11
+
 typedef enum {
-	/** Waiting for the address to be matched */
-	USI_IDLE,
-	/** Address matched, waiting for first byte */
-	USI_ADDRESS_MATCHED,
-	/** Data packet length received, now waiting for all bytes to be transmitted */
-	USI_LENGTH_RECEIVED,
-	/** All bytes received, waiting for end identifier */
-	USI_EXPECTING_END,
-	/** Whole packet has been received */
-	USI_PACKET_RECEIVED
-} usi_state_t;
+	USI_SLAVE_CHECK_ADDRESS = 0x00,
+	USI_SLAVE_SEND_DATA = 0x01,
+	USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA = 0x02,
+	USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA = 0x03,
+	USI_SLAVE_REQUEST_DATA = 0x04,
+	USI_SLAVE_GET_DATA_AND_SEND_ACK = 0x05
+} overflowState_t;
 
-/** Serial receiver state and received data */
 struct {
-	/** Current state of the receiver state machine */
-	volatile usi_state_t state;
-	/** Data packet payload */
-	uint8_t data[USI_MAX_DATA];
-	/** Length of the current data packet */
-	uint8_t length;
-	/** Number of payload bytes received so far */
-	uint8_t counter;
+	uint8_t address;
+	overflowState_t overflowState;
+	uint8_t data[USI_DATA_SIZE];
+	uint8_t index;
 } usi;
 
-/**
- * \brief Initializes serial interface, activates interrupt
- */
-void usi_Init(void);
+void usi_InitI2C(uint8_t ownAddress);
 
-/**
- * \brief Serial interrupt routine
- *
- * Is called each time a byte is received. This byte is then handled by the
- * receiver state machine.
- */
-ISR(USI_OVF_vect);
-
-#endif /* USI_H_ */
+#endif

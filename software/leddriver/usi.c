@@ -1,64 +1,113 @@
-/**
- * \file
- * \brief Serial interface and protocol implementation
- */
 #include "usi.h"
 
-void usi_Init(void) {
-	/* USI starts in idle state */
-	usi.state = USI_IDLE;
-	/* enable pull-ups on data pins */
-	PORTA |= (1 << PA4) | (1 << PA6);
-	/* overflow interrupt enable, three wire mode, external clock, positive edge */
-	USICR |= (1 << USIOIE) | (1 << USIWM0) | (1 << USICS1);
-	/* reset clock counter */
-	USISR = 0;
+void usi_InitI2C(uint8_t ownAddress) {
+	/* store own address */
+	usi.address = ownAddress;
+
+	/* set SCL and SDA high */
+	PORT_USI |= (1 << PORT_USI_SCL);
+	PORT_USI |= (1 << PORT_USI_SDA);
+	/* SCL as output */
+	DDR_USI |= (1 << PORT_USI_SCL);
+	/* SDA as input */
+	DDR_USI &= ~(1 << PORT_USI_SDA);
+	/* enable start detection interrupt, set USI to two-wire mode, clock source external */
+	USICR = (1 << USISIE) | (1 << USIWM1) | (1 << USICS1);
+	/* Clear all flags and reset overflow counter */
+	USISR = (1 << USISIF) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC);
+}
+
+ISR(USI_START_vect) {
+	/* Default conditions for I2C packet */
+	usi.overflowState = USI_SLAVE_CHECK_ADDRESS;
+	/* SDA as input */
+	DDR_USI &= ~(1 << PORT_USI_SDA);
+
+	/* Wait for SCL to go low to ensure the Start Condition has completed */
+	while (( PIN_USI & (1 << PORT_USI_SCL)) && !(( PIN_USI & (1 << PORT_USI_SDA))))
+		;
+	if (!( PIN_USI & (1 << PORT_USI_SCL))) {
+		/* no stop condition occured */
+		/* enable overflow interrupt, switch to SCL held low after overflow */
+		USICR = (1 << USISIE) | (1 << USIOIE) | (1 << USIWM1) | (1 << USIWM0)
+				| (1 << USICS1);
+
+	}
+	/* Clear all flags and reset overflow counter */
+	USISR = (1 << USISIF) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC);
 }
 
 ISR(USI_OVF_vect) {
-	/* save received data */
-	uint8_t data = USIBR;
-	/* clear data register (don't send 1s during next transmission,
-	 * the three wire interface data out is not used) */
-	USIDR = 0;
-	/* handle data input */
-	switch (usi.state) {
-	case USI_IDLE:
-		/* ignore everything until address is matched */
-		if (data == USI_ADDRESS) {
-			usi.state = USI_ADDRESS_MATCHED;
-		}
-		break;
-	case USI_ADDRESS_MATCHED:
-		/* receive data length */
-		if (data <= USI_MAX_DATA) {
-			usi.length = data;
-			usi.counter = 0;
-			usi.state = USI_LENGTH_RECEIVED;
+	uint8_t data = 0;
+	switch (usi.overflowState) {
+	case USI_SLAVE_CHECK_ADDRESS:
+		/* check address and send */
+		if ((USIDR == 0) || (USIDR & 0xFE) == usi.address) {
+			/* general call or address matched */
+			if ( USIDR & 0x01) {
+				/* slave transmitter mode */
+				usi.overflowState = USI_SLAVE_SEND_DATA;
+			} else {
+				/* slave receiver mode */
+				usi.overflowState = USI_SLAVE_REQUEST_DATA;
+				/* undefined index position */
+				usi.index = 0xFF;
+			}
+			SET_USI_TO_SEND_ACK();
 		} else {
-			/* data packet is too long -> reject */
-			usi.state = USI_IDLE;
+			SET_USI_TO_TWI_START_CONDITION_MODE();
 		}
 		break;
-	case USI_LENGTH_RECEIVED:
-		/* receive payload byte */
-		usi.data[usi.counter] = data;
-		usi.counter++;
-		if (usi.counter >= usi.length) {
-			/* whole payload received */
-			usi.state = USI_EXPECTING_END;
+	case USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA:
+		/* check for ACK and send next data if requested */
+		if ( USIDR) {
+			/* no ACK, master doesn't want more data */
+			SET_USI_TO_TWI_START_CONDITION_MODE();
+			return;
 		}
+		/* if ACK -> send next byte */
+		/* no break */
+	case USI_SLAVE_SEND_DATA:
+		/* send next data byte from buffer */
+		if (usi.index == 0xFF) {
+			/* this shouldn't happen -> in case of error set to 0 */
+			usi.index = 0;
+		}
+		/* send next byte */
+		USIDR = usi.data[usi.index];
+		/* increment index with wrap-around */
+		usi.index = (usi.index + 1) & USI_INDEX_MASK;
+
+		usi.overflowState = USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA;
+		SET_USI_TO_SEND_DATA();
 		break;
-	case USI_EXPECTING_END:
-		if (data == USI_END_IDENTIFIER) {
-			/* data transfer completed */
-			usi.state = USI_PACKET_RECEIVED;
+
+	case USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA:
+		/* data has been send, prepare to read ACK */
+		usi.overflowState = USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA;
+		SET_USI_TO_READ_ACK();
+		break;
+
+	case USI_SLAVE_REQUEST_DATA:
+		/* ACK has been sent, now prepare to receive data */
+		usi.overflowState = USI_SLAVE_GET_DATA_AND_SEND_ACK;
+		SET_USI_TO_READ_DATA();
+		break;
+
+	case USI_SLAVE_GET_DATA_AND_SEND_ACK:
+		/* data has been received, store and prepare for ACK */
+		data = USIDR;
+		if (usi.index == 0xFF) {
+			/* this is the first data after address -> set as index position */
+			usi.index = data & USI_INDEX_MASK;
 		} else {
-			usi.state = USI_IDLE;
+			/* not the first byte -> save in buffer */
+			usi.data[usi.index] = data;
+			/* increment index with wrap-around */
+			usi.index = (usi.index + 1) & USI_INDEX_MASK;
 		}
-		break;
-	case USI_PACKET_RECEIVED:
-		/* received packet not yet handled -> ignore further data */
+		usi.overflowState = USI_SLAVE_REQUEST_DATA;
+		SET_USI_TO_SEND_ACK();
 		break;
 	}
 }
