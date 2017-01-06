@@ -963,7 +963,75 @@ const uint8_t PWM_LOOKUP[][2] PROGMEM = {
 		{ 0x8d, 0xda }, 	// Duty cycle = 64.84
 		{ 0x93, 0xe3 }, 	// Duty cycle = 64.91
 		{ 0x7f, 0xc4 }, 	// Duty cycle = 64.97
-		{ 0x9f, 0xf5 } 	// Duty cycle = 65.04
+		{ 0x9f, 0xf5 }, 	// Duty cycle = 65.04
+		{ 0x8b, 0xd6 }, 	// Duty cycle = 65.12
+		{ 0x91, 0xdf }, 	// Duty cycle = 65.18
+		{ 0x6a, 0xa3 }, 	// Duty cycle = 65.24
+		{ 0x90, 0xdd }, 	// Duty cycle = 65.32
+		{ 0x98, 0xe9 }, 	// Duty cycle = 65.38
+		{ 0x7c, 0xbe }, 	// Duty cycle = 65.45
+		{ 0x97, 0xe7 }, 	// Duty cycle = 65.52
+		{ 0x8c, 0xd6 }, 	// Duty cycle = 65.58
+		{ 0x6a, 0xa2 }, 	// Duty cycle = 65.64
+		{ 0xa0, 0xf4 }, 	// Duty cycle = 65.71
+		{ 0x93, 0xe0 }, 	// Duty cycle = 65.78
+		{ 0xa1, 0xf5 }, 	// Duty cycle = 65.85
+		{ 0x92, 0xde }, 	// Duty cycle = 65.92
+		{ 0x7f, 0xc1 }, 	// Duty cycle = 65.98
+		{ 0x8d, 0xd6 }, 	// Duty cycle = 66.05
+		{ 0x9f, 0xf1 }, 	// Duty cycle = 66.12
+		{ 0x88, 0xce }, 	// Duty cycle = 66.18
+		{ 0x9e, 0xef }, 	// Duty cycle = 66.25
+		{ 0x7d, 0xbd }, 	// Duty cycle = 66.32
+		{ 0x9b, 0xea }, 	// Duty cycle = 66.38
+		{ 0x66, 0x9a }, 	// Duty cycle = 66.45
+		{ 0x92, 0xdc }, 	// Duty cycle = 66.52
+		{ 0xa9, 0xfe }, 	// Duty cycle = 66.67
+		{ 0xa9, 0xfe }, 	// Duty cycle = 66.67
+		{ 0xa8, 0xfc }, 	// Duty cycle = 66.80
+		{ 0xa8, 0xfc }, 	// Duty cycle = 66.80
+		{ 0x78, 0xb4 }, 	// Duty cycle = 66.85
+		{ 0x56, 0x81 }, 	// Duty cycle = 66.92
+		{ 0x8b, 0xd0 }, 	// Duty cycle = 66.99
+		{ 0x73, 0xac }, 	// Duty cycle = 67.05
+		{ 0x92, 0xda }, 	// Duty cycle = 67.12
+		{ 0x80, 0xbf }, 	// Duty cycle = 67.19
+		{ 0x97, 0xe1 }, 	// Duty cycle = 67.26
+		{ 0x66, 0x98 }, 	// Duty cycle = 67.32
+		{ 0x9a, 0xe5 }, 	// Duty cycle = 67.39
+		{ 0x71, 0xa8 }, 	// Duty cycle = 67.46
+		{ 0x9d, 0xe9 }, 	// Duty cycle = 67.52
+		{ 0xaa, 0xfc }, 	// Duty cycle = 67.59
+		{ 0x9e, 0xea }, 	// Duty cycle = 67.66
+		{ 0x7f, 0xbc }, 	// Duty cycle = 67.72
+		{ 0x9f, 0xeb }, 	// Duty cycle = 67.80
+		{ 0xaa, 0xfb }, 	// Duty cycle = 67.86
+		{ 0x8f, 0xd3 }, 	// Duty cycle = 67.92
+		{ 0xa9, 0xf9 }, 	// Duty cycle = 68.00
+		{ 0x81, 0xbe }, 	// Duty cycle = 68.06
+		{ 0x6c, 0x9f }, 	// Duty cycle = 68.12
+		{ 0xa2, 0xee }, 	// Duty cycle = 68.20
+		{ 0x9c, 0xe5 }, 	// Duty cycle = 68.26
+		{ 0xa3, 0xef }, 	// Duty cycle = 68.33
+		{ 0x83, 0xc0 }, 	// Duty cycle = 68.39
+		{ 0x58, 0x81 }, 	// Duty cycle = 68.46
+		{ 0x86, 0xc4 }, 	// Duty cycle = 68.53
+		{ 0xa5, 0xf1 }, 	// Duty cycle = 68.60
+		{ 0x94, 0xd8 }, 	// Duty cycle = 68.66
+		{ 0xa4, 0xef }, 	// Duty cycle = 68.75
+		{ 0xab, 0xf9 }, 	// Duty cycle = 68.80
+		{ 0x91, 0xd3 }, 	// Duty cycle = 68.87
+		{ 0x8d, 0xcd }, 	// Duty cycle = 68.93
+		{ 0x89, 0xc7 }, 	// Duty cycle = 69.00
+		{ 0x5f, 0x8a }, 	// Duty cycle = 69.06
+		{ 0xa7, 0xf2 }, 	// Duty cycle = 69.14
+		{ 0xa3, 0xec }, 	// Duty cycle = 69.20
+		{ 0x96, 0xd9 }, 	// Duty cycle = 69.27
+		{ 0x9b, 0xe0 }, 	// Duty cycle = 69.33
+		{ 0x7e, 0xb6 }, 	// Duty cycle = 69.40
+		{ 0x9c, 0xe1 }, 	// Duty cycle = 69.47
+		{ 0x98, 0xdb }, 	// Duty cycle = 69.55
+		{ 0xad, 0xf9 }  	// Duty cycle = 69.60
 };
 
 const uint8_t NTC_LOOKUP[33] PROGMEM = {
@@ -1009,15 +1077,19 @@ void boost_Init() {
 	DDRA |= (1 << PA7);
 
 	/* initialize default voltage/current limits */
-	boost_setCurrent(0);
-	boost_setMaxVoltage(37000);
-	boost_setMaxTemperature(BOOST_MAX_TEMP);
+	boost_setCurrent(BOOST_INITIAL_CURRENT);
+	boost_setMaxVoltage(BOOST_INITIAL_VOLTAGE);
+	boost_setMaxTemperature(BOOST_INITIAL_TEMPLIMIT);
+
+//	/* copy initial limits into USI registers */
+//	usi.data[USI_REG_W_TEMP_LIMIT] = BOOST_INITIAL_TEMPLIMIT;
+//	usi.data[USI_REG_W_CURRENT_LOW] = BOOST_INITIAL_CURRENT & 0xff;
+//	usi.data[USI_REG_W_CURRENT_HIGH] = BOOST_INITIAL_CURRENT >> 8;
+//	usi.data[USI_REG_W_VOLTAGE_LOW] = BOOST_INITIAL_VOLTAGE & 0xff;
+//	usi.data[USI_REG_W_VOLTAGE_HIGH] = BOOST_INITIAL_VOLTAGE >> 8;
 
 	boost.isEnabled = 0;
 	boost.active = 0;
-
-	/* set callback to update boost converter */
-//	adc_setCallback(boost_Update);
 }
 
 void boost_Enable() {

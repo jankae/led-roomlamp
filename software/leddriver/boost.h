@@ -26,8 +26,9 @@
 #define BOOST_VOL_SENS_FACT	40
 /** current sensing shunt in mOhm */
 #define BOOST_SHUNT_VALUE	1000
-/** maximum allowed temperature in °C */
-#define BOOST_MAX_TEMP		150
+#define BOOST_INITIAL_VOLTAGE	37000
+#define BOOST_INITIAL_CURRENT	0
+#define BOOST_INITIAL_TEMPLIMIT	80
 /** @} */
 
 /**

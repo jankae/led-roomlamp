@@ -35,9 +35,9 @@ int main(void){
 			cli();
 			/* copy data atomically */
 			uint16_t current = usi.data[USI_REG_W_CURRENT_LOW]
-					+ ((uint16_t) usi.data[USI_REG_W_CURRENT_LOW] << 8);
+					+ ((uint16_t) usi.data[USI_REG_W_CURRENT_HIGH] << 8);
 			uint16_t voltage = usi.data[USI_REG_W_VOLTAGE_LOW]
-					+ ((uint16_t) usi.data[USI_REG_W_VOLTAGE_LOW] << 8);
+					+ ((uint16_t) usi.data[USI_REG_W_VOLTAGE_HIGH] << 8);
 			uint8_t temp = usi.data[USI_REG_W_TEMP_LIMIT];
 			/* clear new data flag */
 			usi.data[USI_REG_W_CTRL] &= ~USI_CTRL_UPDATE;
