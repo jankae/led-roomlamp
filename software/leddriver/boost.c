@@ -1163,4 +1163,9 @@ void boost_updatePWM(void) {
 	/* extract PWM generation values and store in registers */
 	OCR0B = pgm_read_byte(&PWM_LOOKUP[boost.dutyCycleIt][0]);
 	OCR0A = pgm_read_byte(&PWM_LOOKUP[boost.dutyCycleIt][1]);
+	/* store boost state in USI registers */
+	usi.data[USI_REG_R_DUTY_IDX_LOW] = boost.dutyCycleIt & 0xff;
+	usi.data[USI_REG_R_DUTY_IDX_HIGH] = boost.dutyCycleIt >> 8;
+	usi.data[USI_REG_R_COMPARE_VALUE] = OCR0B;
+	usi.data[USI_REG_R_TOP_VALUE] = OCR0A;
 }

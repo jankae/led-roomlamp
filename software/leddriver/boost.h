@@ -13,6 +13,7 @@
 #include <avr/pgmspace.h>
 #include "adc.h"
 #include "channels.h"
+#include "usi.h"
 
 /**
  * \name Boost converter settings
