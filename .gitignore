@@ -1,8 +1,8 @@
 software/.metadata
 software/RemoteSystemsTempFiles
-software/leddriver/.settings
-software/leddriver/.cproject
-software/leddriver/.project
+.settings
+.cproject
+.project
 *.o
 *.hex
 *.map
