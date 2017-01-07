@@ -19,7 +19,7 @@ void shell_Update(){
 			shell.inputBuffer[shell.writePtr] = 0;
 			/* end of input, parse received line */
 			shell_InputComplete();
-		} else if (c == 8) {
+		} else if (c == 127 || c == 8) {
 			/* remove last char from buffer */
 			if (shell.writePtr > 0) {
 				shell.writePtr--;
