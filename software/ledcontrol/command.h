@@ -1,6 +1,8 @@
 #ifndef COMMAND_H_
 #define COMMAND_H_
 
+#include <stddef.h>
+#include <stdlib.h>
 #include <avr/pgmspace.h>
 #include "conversions.h"
 #include "uart.h"
@@ -19,7 +21,8 @@ void command_parse(uint8_t argc, char *argv[]);
 uint8_t command_isMatch(const char *commandRAM, const char *compareFLASH);
 
 void command_help(uint8_t argc, char *argv[]);
-void command_scanI2C(uint8_t argc, char *argv[]);
+void command_I2Cscan(uint8_t argc, char *argv[]);
+void command_I2Cregister(uint8_t argc, char *argv[]);
 
 
 #endif
