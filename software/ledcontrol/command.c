@@ -1,9 +1,11 @@
 #include "command.h"
 
-const command_t commands[] PROGMEM = { { "help", &command_help,
-		"\t\tLists all available commands" }, { "i2cscan", &command_I2Cscan,
-		"\t\tScans all I2C addresses" }, { "i2creg", &command_I2Cregister,
-		"\t\tReads/writes I2C registers" }, };
+const command_t commands[] PROGMEM = {
+		{ "help", 			&command_help,			"\t\tLists all available commands" },
+		{ "i2cscan", 		&command_I2Cscan,		"\t\tScans all I2C addresses" },
+		{ "i2creg", 		&command_I2Cregister,	"\t\tReads/writes I2C registers" },
+		{ "ledstats",		&command_ledstats, 		"\tDisplays LED status" }
+};
 
 void command_parse(uint8_t argc, char *argv[]) {
 	uint8_t i;
@@ -19,7 +21,7 @@ void command_parse(uint8_t argc, char *argv[]) {
 		}
 	}
 	/* if we reach this point no match has been found */
-	uart_sendString("Unknown command.\r\n");
+	uart_sendString("Unknown command. Try 'help'\r\n");
 }
 
 uint8_t command_isMatch(const char *commandRAM, const char *compareFLASH) {
@@ -173,37 +175,105 @@ void command_I2Cregister(uint8_t argc, char *argv[]) {
 		/* print read register content */
 		fcnt = 0;
 		uint8_t *val = paramArray;
-		char buffer[7];
 		while (argv[format][fcnt]) {
 			/* accumulate size */
 			switch (argv[format][fcnt]) {
 			case 'd':
 			case 'i':
-				itoa(*(int16_t*) val, buffer, 10);
+				uart_sendValue(*(int16_t*) val, 10);
 				val += 2;
 				break;
 			case 'u':
-				utoa(*(uint16_t*) val, buffer, 10);
+				uart_sendValue(*(uint16_t*) val, 10);
 				val += 2;
 				break;
 			case 'x':
-				buffer[0] = '0';
-				buffer[1] = 'x';
-				utoa(*(uint8_t*) val, &buffer[2], 16);
+				uart_sendString_P(PSTR("0x"));
+				uart_sendValue(*(uint8_t*) val, 16);
 				val++;
 				break;
 			case 'c':
-				itoa(*(int8_t*) val, buffer, 10);
+				uart_sendValue(*(int8_t*) val, 10);
 				val++;
 				break;
 			case 's':
-				utoa(*(uint8_t*) val, buffer, 10);
+				uart_sendValue(*(uint8_t*) val, 10);
 				val++;
 				break;
 			}
-			uart_sendString(buffer);
 			uart_sendString_P(PSTR("\r\n"));
 			fcnt++;
+		}
+	}
+}
+
+void command_ledstatsPrint(uint8_t address, ledData_t *data) {
+	uart_sendString_P(PSTR("0x"));
+	uart_sendValue(address, 16);
+	uart_sendString_P(PSTR(": LED V"));
+	uart_sendValue(data->version, 10);
+	uart_sendString_P(PSTR(" Ctrl-Reg: 0x"));
+	uart_sendValue(data->control, 16);
+	uart_sendString_P(PSTR(" I: ("));
+	uart_sendValue(data->getCurrent, 10);
+	uart_sendByte('/');
+	uart_sendValue(data->setCurrent, 10);
+	uart_sendString_P(PSTR(") V: ("));
+	uart_sendValue(data->getVoltage, 10);
+	uart_sendByte('/');
+	uart_sendValue(data->setVoltage, 10);
+	uart_sendString_P(PSTR(") Temp: ("));
+	uart_sendValue(data->temperature, 10);
+	uart_sendByte('/');
+	uart_sendValue(data->tempLimit, 10);
+	uart_sendString_P(PSTR(") Duty: "));
+	uart_sendValue(data->dutyIndex, 10);
+	uart_sendByte('(');
+	uart_sendValue(data->compareReg, 10);
+	uart_sendByte('/');
+	uart_sendValue(data->topReg, 10);
+	uart_sendString_P(PSTR(")\r\n"));
+}
+
+void command_ledstats(uint8_t argc, char *argv[]) {
+	if (argc < 2) {
+		uart_sendString_P(PSTR("Usage: ledstats -a | devices...\r\n"));
+		return;
+	}
+	ledData_t data;
+	/* check whether -a is specified */
+	if (argc == 2 && command_isMatch(argv[1], PSTR("-a"))) {
+		/* try to read all addresses */
+		uint8_t i;
+		for (i = 1; i <= 127; i++) {
+			uint8_t address = (i * 2) + 1;
+			if (i2c_ReadRegisters(address, 0, (uint8_t*) &data, sizeof(data))
+					== I2C_OK) {
+				command_ledstatsPrint(address, &data);
+			}
+		}
+	} else {
+		/* iterate over all args and use them as I2C addresses */
+		uint8_t i;
+		for (i = 1; i < argc; i++) {
+			/* parse address */
+			uint8_t address = strtol(argv[i], NULL, 0);
+			if (!address) {
+				/* couldn't parse address */
+				uart_sendString_P(PSTR("Invalid device address: "));
+				uart_sendString(argv[i]);
+				uart_sendString_P(PSTR("\r\n"));
+				continue;
+			}
+			/* try to read from address */
+			if (i2c_ReadRegisters(address, 0, (uint8_t*) &data, sizeof(data))
+					== I2C_OK) {
+				command_ledstatsPrint(address, &data);
+			} else {
+				/* no I2C response */
+				uart_sendString(argv[i]);
+				uart_sendString_P(PSTR(": I2C read failed.\r\n"));
+			}
 		}
 	}
 }
