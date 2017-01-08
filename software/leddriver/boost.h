@@ -53,10 +53,10 @@ struct {
 	int16_t setCurrent;
 	int16_t current;
 	/** Raw ADC value for boost converter voltage limit */
-	int16_t setVoltage;
-	int16_t voltage;
+	uint16_t setVoltage;
+	uint16_t voltage;
 	/** Raw ADC value for boost converter temperature limit */
-	int16_t maxTemp;
+	uint8_t maxTemp;
 	uint8_t temperature;
 	/** selected entry in duty cycle lookup-table */
 	int16_t dutyCycleIt;

@@ -61,23 +61,6 @@
 #define USI_DATA_SIZE 			16
 #define USI_INDEX_MASK			(USI_DATA_SIZE - 1)
 
-#define USI_REG_W_CTRL			0
-#define USI_REG_R_VERSION		1
-#define USI_REG_W_CURRENT_LOW	2
-#define USI_REG_W_CURRENT_HIGH	3
-#define USI_REG_W_VOLTAGE_LOW	4
-#define USI_REG_W_VOLTAGE_HIGH	5
-#define USI_REG_W_TEMP_LIMIT	6
-#define USI_REG_R_TEMP			7
-#define USI_REG_R_CURRENT_LOW	8
-#define USI_REG_R_CURRENT_HIGH	9
-#define USI_REG_R_VOLTAGE_LOW	10
-#define USI_REG_R_VOLTAGE_HIGH	11
-#define USI_REG_R_DUTY_IDX_LOW	12
-#define USI_REG_R_DUTY_IDX_HIGH	13
-#define USI_REG_R_COMPARE_VALUE	14
-#define USI_REG_R_TOP_VALUE		15
-
 #define USI_CTRL_UPDATE			0x01
 
 typedef enum {
@@ -93,7 +76,22 @@ typedef enum {
 struct {
 	uint8_t address;
 	usi_I2CState_t state;
-	uint8_t data[USI_DATA_SIZE];
+	union {
+		uint8_t data[USI_DATA_SIZE];
+		struct {
+			uint8_t control;
+			uint8_t version;
+			uint16_t setCurrent;
+			uint16_t setVoltage;
+			uint8_t tempLimit;
+			uint8_t temperature;
+			uint16_t getCurrent;
+			uint16_t getVoltage;
+			uint16_t dutyIndex;
+			uint8_t compareReg;
+			uint8_t topReg;
+		} ledData;
+	};
 	uint8_t index;
 } usi;
 

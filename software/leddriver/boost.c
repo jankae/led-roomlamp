@@ -1081,12 +1081,10 @@ void boost_Init() {
 	boost_setMaxVoltage(BOOST_INITIAL_VOLTAGE);
 	boost_setMaxTemperature(BOOST_INITIAL_TEMPLIMIT);
 
-//	/* copy initial limits into USI registers */
-//	usi.data[USI_REG_W_TEMP_LIMIT] = BOOST_INITIAL_TEMPLIMIT;
-//	usi.data[USI_REG_W_CURRENT_LOW] = BOOST_INITIAL_CURRENT & 0xff;
-//	usi.data[USI_REG_W_CURRENT_HIGH] = BOOST_INITIAL_CURRENT >> 8;
-//	usi.data[USI_REG_W_VOLTAGE_LOW] = BOOST_INITIAL_VOLTAGE & 0xff;
-//	usi.data[USI_REG_W_VOLTAGE_HIGH] = BOOST_INITIAL_VOLTAGE >> 8;
+	/* copy initial limits into USI registers */
+	usi.ledData.setCurrent = boost.setCurrent;
+	usi.ledData.setVoltage = boost.setVoltage;
+	usi.ledData.tempLimit = boost.maxTemp;
 
 	boost.isEnabled = 0;
 	boost.active = 0;
@@ -1109,6 +1107,7 @@ void boost_Disable() {
 	DDRA |= (1 << PA7);
 	/* disable PWM */
 	TCCR0A = TCCR0B = 0;
+	OCR0A = OCR0B = 0;
 	boost.isEnabled = 0;
 }
 
