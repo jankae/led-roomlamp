@@ -66,6 +66,8 @@ void uart_sendString(const char *s);
  */
 void uart_sendString_P(const char *s);
 
+void uart_sendValue(int16_t val, uint8_t base);
+
 ISR(USART0_RX_vect);
 
 ISR(USART0_UDRE_vect);
