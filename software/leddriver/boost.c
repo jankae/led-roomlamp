@@ -1125,7 +1125,7 @@ void boost_Update(void) {
 			- boost.temperature) * interpolate / 32;
 
 	if (!boost.isEnabled && boost.active
-			&& (boost.maxTemp >= boost.temperature)) {
+			&& (boost.maxTemp >= boost.temperature + 5)) {
 		/* was disabled, now active and temperature is OK */
 		boost_Enable();
 	} else if (boost.isEnabled
