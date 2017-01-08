@@ -7,7 +7,7 @@ F_CPU = 20000000;
 # Maximum counter value
 CNT_MAX = 255;
 # Length of required PWM look-up table (additional entries will be dropped)
-LOOKUP_LENGTH = 1024;
+LOOKUP_LENGTH = 768;
 
 # Maximum switching frequency in Hz
 MAX_FREQ = 1000000;
