@@ -5,6 +5,12 @@
 
 #define I2C_BITRATE		100000
 
+typedef enum {
+	I2C_OK,
+	I2C_NODEVICE,
+	I2C_NOACK,
+	I2C_ERROR
+} i2cResult_t;
 
 /**
  * \brief Initializes I2C hardware
@@ -17,7 +23,7 @@ void i2c_Init();
  * \param address Address of the device
  * \return 1 if device available, 0 otherwise
  */
-uint8_t i2c_CheckAddress(uint8_t address);
+i2cResult_t i2c_CheckAddress(uint8_t address);
 
 /**
  * \brief Writes multiple registers in an I2C device
@@ -28,7 +34,7 @@ uint8_t i2c_CheckAddress(uint8_t address);
  * \param num Number of registers to write
  * \return 0 on success, >0 on failure
  */
-uint8_t i2c_WriteRegisters(uint8_t address, uint8_t regStart,
+i2cResult_t i2c_WriteRegisters(uint8_t address, uint8_t regStart,
 		uint8_t *registers, uint8_t num);
 
 /**
@@ -40,7 +46,7 @@ uint8_t i2c_WriteRegisters(uint8_t address, uint8_t regStart,
  * \param num Number of registers to read
  * \return 0 on success, >0 on failure
  */
-uint8_t i2c_ReadRegisters(uint8_t address, uint8_t regStart,
+i2cResult_t i2c_ReadRegisters(uint8_t address, uint8_t regStart,
 		uint8_t *registers, uint8_t num);
 
 /**
@@ -57,7 +63,7 @@ uint8_t i2c_ReadByte(uint8_t ack);
  * \param data The byte to be written
  * \return 0 on success, >0 on failure
  */
-uint8_t i2c_WriteByte(uint8_t data);
+i2cResult_t i2c_WriteByte(uint8_t data);
 
 /**
  * \brief Sends a device address
@@ -65,18 +71,20 @@ uint8_t i2c_WriteByte(uint8_t data);
  * \param address The slave address
  * \return 0 on if ACK received, 1 otherwise
  */
-uint8_t i2c_SendAddress(uint8_t address);
+i2cResult_t i2c_SendAddress(uint8_t address);
 
 /**
  * \brief Initiates a start condition
  *
  * \return 0 on success, >0 on failure
  */
-uint8_t i2c_Start();
+i2cResult_t i2c_Start();
 
 /**
  * \brief Initiates a stop condition
  */
-void i2c_Stop();
+inline void i2c_Stop() {
+	TWCR |= (1 << TWINT) | (1 << TWSTO);
+}
 
 #endif
