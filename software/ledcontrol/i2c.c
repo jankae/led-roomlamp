@@ -12,6 +12,10 @@ i2cResult_t i2c_CheckAddress(uint8_t address) {
 	res = i2c_Start();
 	if (res == I2C_OK) {
 		res = i2c_SendAddress(address);
+		if(res == I2C_OK && (address & 0x01)){
+			/* it was a read address -> do a dummy read */
+			i2c_ReadByte(0);
+		}
 	}
 	i2c_Stop();
 	return res;
