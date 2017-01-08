@@ -70,8 +70,14 @@ ISR(USART0_UDRE_vect) {
 	}
 }
 
-void uart_sendValue(int16_t val, uint8_t base){
+void uart_sendValue(int16_t val, uint8_t base) {
 	char buffer[7];
 	itoa(val, buffer, base);
+	uart_sendString(buffer);
+}
+
+void uart_sendUnsignedValue(uint16_t val, uint8_t base) {
+	char buffer[7];
+	utoa(val, buffer, base);
 	uart_sendString(buffer);
 }

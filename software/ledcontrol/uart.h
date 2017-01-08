@@ -1,6 +1,7 @@
 #ifndef UART_H_
 #define UART_H_
 
+#include <stdlib.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -67,6 +68,8 @@ void uart_sendString(const char *s);
 void uart_sendString_P(const char *s);
 
 void uart_sendValue(int16_t val, uint8_t base);
+
+void uart_sendUnsignedValue(uint16_t val, uint8_t base);
 
 ISR(USART0_RX_vect);
 
