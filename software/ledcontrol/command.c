@@ -4,7 +4,8 @@ const command_t commands[] PROGMEM = {
 		{ "help", 			&command_help,			"\t\tLists all available commands" },
 		{ "i2cscan", 		&command_I2Cscan,		"\t\tScans all I2C addresses" },
 		{ "i2creg", 		&command_I2Cregister,	"\t\tReads/writes I2C registers" },
-		{ "ledstats",		&command_ledstats, 		"\tDisplays LED status" }
+		{ "ledstats",		&command_ledstats, 		"\tDisplays LED status" },
+		{ "ledset",			&command_ledset, 		"\t\tSets LED values" }
 };
 
 void command_parse(uint8_t argc, char *argv[]) {
@@ -209,29 +210,29 @@ void command_I2Cregister(uint8_t argc, char *argv[]) {
 
 void command_ledstatsPrint(uint8_t address, ledData_t *data) {
 	uart_sendString_P(PSTR("0x"));
-	uart_sendValue(address, 16);
+	uart_sendUnsignedValue(address, 16);
 	uart_sendString_P(PSTR(": LED V"));
-	uart_sendValue(data->version, 10);
+	uart_sendUnsignedValue(data->version, 10);
 	uart_sendString_P(PSTR(" Ctrl-Reg: 0x"));
-	uart_sendValue(data->control, 16);
+	uart_sendUnsignedValue(data->control, 16);
 	uart_sendString_P(PSTR(" I: ("));
-	uart_sendValue(data->getCurrent, 10);
+	uart_sendUnsignedValue(data->getCurrent, 10);
 	uart_sendByte('/');
-	uart_sendValue(data->setCurrent, 10);
+	uart_sendUnsignedValue(data->setCurrent, 10);
 	uart_sendString_P(PSTR(") V: ("));
-	uart_sendValue(data->getVoltage, 10);
+	uart_sendUnsignedValue(data->getVoltage, 10);
 	uart_sendByte('/');
-	uart_sendValue(data->setVoltage, 10);
+	uart_sendUnsignedValue(data->setVoltage, 10);
 	uart_sendString_P(PSTR(") Temp: ("));
-	uart_sendValue(data->temperature, 10);
+	uart_sendUnsignedValue(data->temperature, 10);
 	uart_sendByte('/');
-	uart_sendValue(data->tempLimit, 10);
+	uart_sendUnsignedValue(data->tempLimit, 10);
 	uart_sendString_P(PSTR(") Duty: "));
-	uart_sendValue(data->dutyIndex, 10);
+	uart_sendUnsignedValue(data->dutyIndex, 10);
 	uart_sendByte('(');
-	uart_sendValue(data->compareReg, 10);
+	uart_sendUnsignedValue(data->compareReg, 10);
 	uart_sendByte('/');
-	uart_sendValue(data->topReg, 10);
+	uart_sendUnsignedValue(data->topReg, 10);
 	uart_sendString_P(PSTR(")\r\n"));
 }
 
@@ -277,3 +278,117 @@ void command_ledstats(uint8_t argc, char *argv[]) {
 		}
 	}
 }
+
+void command_ledset(uint8_t argc, char *argv[]) {
+	if (argc < 3) {
+		uart_sendString_P(PSTR("usage: ledset -a | devices... flag [flag...]\r\n"
+				"\tFlags: [-c current | -v voltage | -t temperature limit | -u]\r\n"));
+		return;
+	}
+	/* parse args */
+	uint8_t allLEDs = 0;
+	uint16_t current = 0xffff;
+	uint16_t voltage = 0xffff;
+	uint8_t temp = 0xff;
+	uint8_t update = 0;
+	uint8_t i;
+	for (i = 1; i < argc; i++) {
+		if(argv[i][0] != '-') {
+			/* not an argument -> skip */
+			continue;
+		}
+		uint16_t param = 0;
+		if (i + 1 != argc) {
+			/* more args following */
+			param = strtol(argv[i + 1], NULL, 0);
+		}
+		switch(argv[i][1]){
+		case 'a':
+			/* do operation on all LEDs */
+			allLEDs = 1;
+			break;
+		case 'n':
+			/* don't update changed values right away */
+			update = 1;
+			break;
+		case 'c':
+			/* update current */
+			current = param;
+			i++;
+			break;
+		case 'v':
+			/* update voltage */
+			voltage = param;
+			i++;
+			break;
+		case 't':
+			/* update temperature limit */
+			temp = param;
+			i++;
+			break;
+		default:
+			uart_sendString_P(PSTR("Unknown option: -"));
+			uart_sendByte(argv[i][1]);
+			uart_sendString_P(PSTR("\r\n"));
+			return;
+		}
+	}
+
+	if(current == 0xffff && voltage == 0xffff && temp == 0xff && !update){
+		/* no operation specified */
+		uart_sendString_P(PSTR("No operation specified.\r\n"));
+		return;
+	}
+
+	/* iterate over all addresses */
+	for (i = 1; i <= 127; i++) {
+		/* shift i to 7bit I2C address*/
+		uint8_t address = i << 1;
+		if (!allLEDs) {
+			/* -a hasn't been specified, try to find an address match */
+			uint8_t j;
+			for (j = 1; j < argc; j++) {
+				/* abort search on first option */
+				if (argv[j][0] == '-') {
+					/* mark end of search */
+					j = argc;
+					break;
+				}
+				if (((uint8_t) strtol(argv[j], NULL, 0) & 0xFE) == address) {
+					/* address matched, execute operations */
+					break;
+				}
+			}
+			if (j == argc) {
+				/* no match found */
+				continue;
+			}
+		}
+		/* either -a is specified or address matched */
+		/* execute specified operations */
+		i2cResult_t res = I2C_OK;
+		if (current != 0xffff) {
+			res = led_SetCurrent(address, current);
+		}
+		if (voltage != 0xffff) {
+			res = led_SetVoltage(address, voltage);
+		}
+		if (temp != 0xff) {
+			res = led_SetTempLimit(address, temp);
+		}
+		if (update) {
+			res = led_UpdateSettings(address);
+		}
+		if (res == I2C_OK) {
+			uart_sendString_P(PSTR("0x"));
+			uart_sendValue(address, 16);
+			uart_sendString_P(PSTR(": OK\r\n"));
+		} else if(!allLEDs){
+			/* only print failure messages if address has been explicitly specified */
+			uart_sendString_P(PSTR("0x"));
+			uart_sendValue(address, 16);
+			uart_sendString_P(PSTR(": FAILED\r\n"));
+		}
+	}
+}
+
