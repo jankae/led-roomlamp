@@ -307,7 +307,7 @@ void command_ledset(uint8_t argc, char *argv[]) {
 			/* do operation on all LEDs */
 			allLEDs = 1;
 			break;
-		case 'n':
+		case 'u':
 			/* don't update changed values right away */
 			update = 1;
 			break;
