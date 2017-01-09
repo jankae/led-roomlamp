@@ -21,8 +21,6 @@ int main(void){
 
 	/* disable analog comparator */
 	ACSR |= (1<<ACD);
-	/* disable timer1 module (not needed) */
-	PRR |= (1<<PRTIM1);
 
 	usi.ledData.version = VERSION;
 
@@ -49,6 +47,9 @@ int main(void){
 			} else {
 				boost.active = 0;
 			}
+			/* update channel values */
+			channels_Update(usi.ledData.channel1, usi.ledData.channel2,
+					usi.ledData.channel3);
 		}
 		if (adc.newData) {
 			boost_Update();

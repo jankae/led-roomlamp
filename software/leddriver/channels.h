@@ -7,8 +7,7 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
-
-#define CH1_SOFTUART	0
+#include <avr/interrupt.h>
 
 /**
  * \name Port defines for the three auxiliary channels
@@ -47,10 +46,25 @@
 #define CH3_Toggle()	CH3_PIN |= (1<<CH3_BIT)
 /** @} */
 
+typedef struct {
+	uint8_t turnOnMaskA;
+	uint8_t turnOnMaskB;
+	uint8_t compareA[2];
+	uint8_t turnOffMaskA[2];
+	uint8_t compareB;
+} channelData_t;
+
+struct {
+	uint8_t updateData;
+	uint8_t portACnt;
+} channel;
+
 /**
  * \brief Initializes the control pins for the external channels
  */
 void channels_Init(void);
+
+void channels_Update(uint8_t ch1, uint8_t ch2, uint8_t ch3);
 
 #if CH1_SOFTUART
 void CH1_SendString(uint8_t *s);

@@ -57,11 +57,24 @@
 		        (0x0 << USICNT0); /* set USI to shift out 8 bits        */                                             \
 	}
 
-/** Size if I2C buffer. Has to be a power of 2 (e.g. 2,4,8,16...) */
-#define USI_DATA_SIZE 			16
-#define USI_INDEX_MASK			(USI_DATA_SIZE - 1)
-
 #define USI_CTRL_UPDATE			0x01
+
+typedef struct {
+	uint8_t control;
+	uint8_t version;
+	uint16_t setCurrent;
+	uint16_t setVoltage;
+	uint8_t tempLimit;
+	uint8_t temperature;
+	uint16_t getCurrent;
+	uint16_t getVoltage;
+	uint16_t dutyIndex;
+	uint8_t compareReg;
+	uint8_t topReg;
+	uint8_t channel1;
+	uint8_t channel2;
+	uint8_t channel3;
+} ledData_t;
 
 typedef enum {
 	USI_SLAVE_CHECK_ADDRESS,
@@ -77,20 +90,8 @@ struct {
 	uint8_t address;
 	usi_I2CState_t state;
 	union {
-		uint8_t data[USI_DATA_SIZE];
-		struct {
-			uint8_t control;
-			uint8_t version;
-			uint16_t setCurrent;
-			uint16_t setVoltage;
-			uint8_t tempLimit;
-			uint8_t temperature;
-			uint16_t getCurrent;
-			uint16_t getVoltage;
-			uint16_t dutyIndex;
-			uint8_t compareReg;
-			uint8_t topReg;
-		} ledData;
+		uint8_t data[sizeof(ledData_t)];
+		ledData_t ledData;
 	};
 	uint8_t index;
 } usi;

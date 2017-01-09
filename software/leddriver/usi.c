@@ -92,7 +92,10 @@ ISR(USI_OVF_vect) {
 		/* send next byte */
 		USIDR = usi.data[usi.index];
 		/* increment index with wrap-around */
-		usi.index = (usi.index + 1) & USI_INDEX_MASK;
+		usi.index = (usi.index + 1);// & USI_INDEX_MASK;
+		if(usi.index == sizeof(ledData_t)){
+			usi.index = 0;
+		}
 
 		usi.state = USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA;
 		SET_USI_TO_SEND_DATA();
@@ -115,12 +118,18 @@ ISR(USI_OVF_vect) {
 		data = USIDR;
 		if (usi.index == 0xFF) {
 			/* this is the first data after address -> set as index position */
-			usi.index = data & USI_INDEX_MASK;
+			usi.index = data;
+			if (usi.index >= sizeof(ledData_t)) {
+				usi.index = 0;
+			}
 		} else {
 			/* not the first byte -> save in buffer */
 			usi.data[usi.index] = data;
 			/* increment index with wrap-around */
-			usi.index = (usi.index + 1) & USI_INDEX_MASK;
+			usi.index = (usi.index + 1);// & USI_INDEX_MASK;
+			if(usi.index == sizeof(ledData_t)){
+				usi.index = 0;
+			}
 		}
 		usi.state = USI_SLAVE_REQUEST_DATA;
 		SET_USI_TO_SEND_ACK();
