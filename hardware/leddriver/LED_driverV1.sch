@@ -18668,8 +18668,8 @@ DIN A4, landscape with location and doc. field</description>
 <part name="Q2" library="transistor-npn" deviceset="BC817*" device="SMD" technology="-40"/>
 <part name="Q3" library="transistor-npn" deviceset="BC817*" device="SMD" technology="-40"/>
 <part name="R2" library="rcl" deviceset="R-EU_" device="R0603" value="330"/>
-<part name="R3" library="rcl" deviceset="R-EU_" device="R0603" value="330"/>
-<part name="R4" library="rcl" deviceset="R-EU_" device="R0603" value="20"/>
+<part name="R3" library="rcl" deviceset="R-EU_" device="R0603" value="10"/>
+<part name="R4" library="rcl" deviceset="R-EU_" device="R0603" value="10"/>
 <part name="P+4" library="supply1" deviceset="+12V" device=""/>
 <part name="GND8" library="supply1" deviceset="GND" device=""/>
 <part name="C8" library="rcl" deviceset="C-EU" device="C0603K" value="100n"/>
@@ -18682,7 +18682,7 @@ DIN A4, landscape with location and doc. field</description>
 <part name="GND10" library="supply1" deviceset="GND" device=""/>
 <part name="R8" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
 <part name="R9" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
-<part name="R10" library="rcl" deviceset="R-EU_" device="R0603" value="47k"/>
+<part name="R10" library="rcl" deviceset="R-EU_" device="R0603" value="39k"/>
 <part name="GND11" library="supply1" deviceset="GND" device=""/>
 <part name="IC3" library="linear" deviceset="78L*SMD" device="" technology="05"/>
 <part name="C9" library="rcl" deviceset="C-EU" device="C0603K" value="100n"/>
@@ -18703,9 +18703,9 @@ DIN A4, landscape with location and doc. field</description>
 <part name="CH3" library="wirepad" deviceset="WIREPAD" device="SMD1,27-254"/>
 <part name="12V" library="wirepad" deviceset="WIREPAD" device="SMD5-2,5"/>
 <part name="R14" library="rcl" deviceset="R-EU_" device="R0603" value="10k"/>
-<part name="R12" library="rcl" deviceset="R-EU_" device="R0603" value="3k3"/>
+<part name="R12" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
 <part name="GND5" library="supply1" deviceset="GND" device=""/>
-<part name="R13" library="rcl" deviceset="R-EU_" device="R0603" value="1k"/>
+<part name="R13" library="rcl" deviceset="R-EU_" device="R0603" value="3k3"/>
 <part name="R15" library="ptc-ntc" deviceset="NTC640" device=""/>
 <part name="P+7" library="supply1" deviceset="+5V" device=""/>
 <part name="IN" library="testpad" deviceset="TP" device="TP15R" value="TPTP15R"/>

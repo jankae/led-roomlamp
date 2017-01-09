@@ -1,0 +1,12 @@
+As usual, the first revision (V1) of the board includes some mistakes.
+These are the necessary fixes (see fixesV1.JPG):
+
+1. Do not populate R2.
+2. Do not populate R14.
+3. Do not populate Q3. Instead short its base and collector and add a resistor of approx. 10k between the emitter and collector.
+4. Add a 100nF capacitor from IC1 pin 13 to ground.
+5. Add a 100nF capacitor on top of R9.
+6. Add a 100nF capacitor on top of R12.
+7. Add a 1k resistor from R15 to ground.
+
+These are fixed in V1.1. But since V1 is working well, V1.1 will probably never be build, is therefore untested and might contain further errors.
