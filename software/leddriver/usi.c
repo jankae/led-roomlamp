@@ -36,11 +36,16 @@ ISR(USI_START_vect) {
 	while (( PIN_USI & (1 << PORT_USI_SCL)) && !(( PIN_USI & (1 << PORT_USI_SDA))))
 		;
 	if (!( PIN_USI & (1 << PORT_USI_SCL))) {
-		/* no stop condition occured */
+		/* no stop condition occurred */
 		/* enable overflow interrupt, switch to SCL held low after overflow */
 		USICR = (1 << USISIE) | (1 << USIOIE) | (1 << USIWM1) | (1 << USIWM0)
 				| (1 << USICS1);
 
+	}
+	else {
+		/* stop condition occurred */
+		/* disable overflow interrupt */
+		USICR = (1 << USISIE) | (1 << USIWM1) |	(1 << USICS1);
 	}
 	/* Clear all flags and reset overflow counter */
 	USISR = (1 << USISIF) | (1 << USIOIF) | (1 << USIPF) | (1 << USIDC);
