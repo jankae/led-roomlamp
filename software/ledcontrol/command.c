@@ -233,7 +233,13 @@ void command_ledstatsPrint(uint8_t address, ledData_t *data) {
 	uart_sendUnsignedValue(data->compareReg, 10);
 	uart_sendByte('/');
 	uart_sendUnsignedValue(data->topReg, 10);
-	uart_sendString_P(PSTR(")\r\n"));
+	uart_sendString_P(PSTR(") CH1: "));
+	uart_sendUnsignedValue(data->channel1, 10);
+	uart_sendString_P(PSTR(" CH2: "));
+	uart_sendUnsignedValue(data->channel2, 10);
+	uart_sendString_P(PSTR(" CH3: "));
+	uart_sendUnsignedValue(data->channel3, 10);
+	uart_sendString_P(PSTR("\r\n"));
 }
 
 void command_ledstats(uint8_t argc, char *argv[]) {
@@ -282,15 +288,24 @@ void command_ledstats(uint8_t argc, char *argv[]) {
 void command_ledset(uint8_t argc, char *argv[]) {
 	if (argc < 3) {
 		uart_sendString_P(PSTR("usage: ledset -a | devices... flag [flag...]\r\n"
-				"\tFlags: [-c current | -v voltage | -t temperature limit | -u]\r\n"));
+				"\tFlags:\t[-c current | -v voltage | -t temperature limit | -u\r\n"
+				"\t\t-x channel1 | -y channel2 | -z channel3\r\n"));
 		return;
 	}
 	/* parse args */
 	uint8_t allLEDs = 0;
-	uint16_t current = 0xffff;
-	uint16_t voltage = 0xffff;
-	uint8_t temp = 0xff;
-	uint8_t update = 0;
+	uint16_t current = 0;
+	uint16_t voltage = 0;
+	uint8_t temp = 0;
+	uint8_t channels[3];
+#define SET_CURRENT		0x01
+#define SET_VOLTAGE		0x02
+#define SET_TEMPERATURE	0x04
+#define SET_CHANNEL1		0x08
+#define SET_CHANNEL2		0x10
+#define SET_CHANNEL3		0x20
+#define SET_UPDATE			0x80
+	uint8_t updateFlags = 0x00;
 	uint8_t i;
 	for (i = 1; i < argc; i++) {
 		if(argv[i][0] != '-') {
@@ -309,21 +324,42 @@ void command_ledset(uint8_t argc, char *argv[]) {
 			break;
 		case 'u':
 			/* don't update changed values right away */
-			update = 1;
+			updateFlags |= SET_UPDATE;
 			break;
 		case 'c':
 			/* update current */
 			current = param;
+			updateFlags |= SET_CURRENT;
 			i++;
 			break;
 		case 'v':
 			/* update voltage */
 			voltage = param;
+			updateFlags |= SET_VOLTAGE;
 			i++;
 			break;
 		case 't':
 			/* update temperature limit */
 			temp = param;
+			updateFlags |= SET_TEMPERATURE;
+			i++;
+			break;
+		case 'x':
+			/* update channel1 limit */
+			channels[0] = param;
+			updateFlags |= SET_CHANNEL1;
+			i++;
+			break;
+		case 'y':
+			/* update channel2 limit */
+			channels[1] = param;
+			updateFlags |= SET_CHANNEL2;
+			i++;
+			break;
+		case 'z':
+			/* update channel3 limit */
+			channels[2] = param;
+			updateFlags |= SET_CHANNEL3;
 			i++;
 			break;
 		default:
@@ -334,7 +370,8 @@ void command_ledset(uint8_t argc, char *argv[]) {
 		}
 	}
 
-	if(current == 0xffff && voltage == 0xffff && temp == 0xff && !update){
+	if (current == 0xffff && voltage == 0xffff && temp == 0xff
+			&& !(updateFlags & SET_UPDATE)) {
 		/* no operation specified */
 		uart_sendString_P(PSTR("No operation specified.\r\n"));
 		return;
@@ -367,16 +404,28 @@ void command_ledset(uint8_t argc, char *argv[]) {
 		/* either -a is specified or address matched */
 		/* execute specified operations */
 		i2cResult_t res = I2C_OK;
-		if (current != 0xffff) {
+		if (updateFlags & SET_CURRENT) {
 			res = led_SetCurrent(address, current);
 		}
-		if (voltage != 0xffff) {
+		if (updateFlags & SET_VOLTAGE) {
 			res = led_SetVoltage(address, voltage);
 		}
-		if (temp != 0xff) {
+		if (updateFlags & SET_TEMPERATURE) {
 			res = led_SetTempLimit(address, temp);
 		}
-		if (update) {
+		if (updateFlags & SET_TEMPERATURE) {
+			res = led_SetTempLimit(address, temp);
+		}
+		if (updateFlags & SET_CHANNEL1) {
+			res = led_SetChannel(address, 1, channels[0]);
+		}
+		if (updateFlags & SET_CHANNEL2) {
+			res = led_SetChannel(address, 2, channels[1]);
+		}
+		if (updateFlags & SET_CHANNEL3) {
+			res = led_SetChannel(address, 3, channels[2]);
+		}
+		if (updateFlags & SET_UPDATE) {
 			res = led_UpdateSettings(address);
 		}
 		if (res == I2C_OK) {

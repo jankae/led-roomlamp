@@ -15,6 +15,14 @@ i2cResult_t led_SetTempLimit(uint8_t address, uint8_t limit) {
 	return i2c_WriteRegisters(address, offsetof(ledData_t, tempLimit),
 			(uint8_t*) &limit, sizeof(limit));
 }
+i2cResult_t led_SetChannel(uint8_t address, uint8_t channel, uint8_t value){
+	if(channel<1 || channel>3){
+		/* channel is out of bounds */
+		return I2C_NOACK;
+	}
+	return i2c_WriteRegisters(address,
+			offsetof(ledData_t, channel1) - 1 + channel, &value, sizeof(value));
+}
 i2cResult_t led_UpdateSettings(uint8_t address) {
 	/* read control register */
 	uint8_t control;

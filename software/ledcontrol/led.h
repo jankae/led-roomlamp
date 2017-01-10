@@ -16,6 +16,9 @@ typedef struct {
 	uint16_t dutyIndex;
 	uint8_t compareReg;
 	uint8_t topReg;
+	uint8_t channel1;
+	uint8_t channel2;
+	uint8_t channel3;
 } ledData_t;
 
 #define LED_CTRL_UPDATE			0x01
@@ -24,6 +27,7 @@ i2cResult_t led_GetAllData(uint8_t address, ledData_t *data);
 i2cResult_t led_SetCurrent(uint8_t address, uint16_t current);
 i2cResult_t led_SetVoltage(uint8_t address, uint16_t voltage);
 i2cResult_t led_SetTempLimit(uint8_t address, uint8_t limit);
+i2cResult_t led_SetChannel(uint8_t address, uint8_t channel, uint8_t value);
 i2cResult_t led_UpdateSettings(uint8_t address);
 
 #endif
