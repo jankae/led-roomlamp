@@ -1,9 +1,9 @@
 MCU = atmega1284p
-F_CPU = 16000000UL
+F_CPU = 8000000UL
 
-PROGRAMMER_TYPE = stk500v2
+PROGRAMMER_TYPE = avrispmkII #stk500v2
 # extra arguments to avrdude: baud rate, chip type, -F flag, etc.
-PROGRAMMER_ARGS = -P /dev/ttyUSB0
+PROGRAMMER_ARGS = -P usb #/dev/ttyUSB0
 
 CC = avr-gcc
 OBJCOPY = avr-objcopy
@@ -12,8 +12,8 @@ AVRSIZE = avr-size
 AVRDUDE = avrdude
 
 #EFUSE = 0xFF
-#HFUSE = 0xDC
-#LFUSE = 0xEF
+HFUSE = 0xDC
+LFUSE = 0xFF
 
 ##########------------------------------------------------------##########
 ##########                   Makefile Magic!                    ##########
@@ -25,7 +25,7 @@ AVRDUDE = avrdude
 ##########------------------------------------------------------##########
 
 ## The name of your project (without the .c)
-TARGET = leddriver
+TARGET = main
 
 # Object files: will find all .c/.h files in current directory
 #  and in LIBDIR.  If you have any other (sub-)directories with code,
@@ -70,6 +70,14 @@ $(TARGET).elf: $(OBJECTS)
 %.lst: %.elf
 	$(OBJDUMP) -S $< > $@
 
+depend: .depend
+
+.depend: $(SOURCES)
+	rm -f ./.depend
+	$(CC) $(CFLAGS) -MM $^ > ./.depend;
+
+include .depend
+
 ## These targets don't have files named after them
 .PHONY: all disassemble disasm eeprom size clean squeaky_clean flash fuses
 
@@ -85,8 +93,8 @@ flash: $(TARGET).elf
 	@echo Calling avrdude to flash the firmware...
 	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) $(PROGRAMMER_ARGS) -U flash:w:$(TARGET).hex
 
-#fuses:
-#	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) $(PROGRAMMER_ARGS) -u -U efuse:w:$(EFUSE):m -U hfuse:w:$(HFUSE):m -U lfuse:w:$(LFUSE):m
+fuses:
+	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) $(PROGRAMMER_ARGS) -u -U hfuse:w:$(HFUSE):m -U lfuse:w:$(LFUSE):m
 
 reset:
 	$(AVRDUDE) -c $(PROGRAMMER_TYPE) -p $(MCU) $(PROGRAMMER_ARGS)

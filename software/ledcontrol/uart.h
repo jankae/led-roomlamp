@@ -6,7 +6,37 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
-#define UART_UBRR_VAL			103 // 9k6
+#ifdef __AVR_ATmega8__
+#define UART_CTRL_A			UCSRA
+#define UART_CTRL_B			UCSRB
+#define UART_DATA			UDR
+#define RX_ENABLE			RXEN
+#define TX_ENABLE			TXEN
+#define RXCI_ENABLE			RXCIE
+#define UDRI_ENABLE			UDRIE
+#define UART_2X				U2X
+#define RXC_ISR				USART_RXC_vect
+#define UDRE_ISR			USART_UDRE_vect
+#define UART_BAUDH			UBRRH
+#define UART_BAUDL			UBRRL
+#else
+#ifdef __AVR_ATmega1284P__
+#define UART_CTRL_A			UCSR0A
+#define UART_CTRL_B			UCSR0B
+#define UART_DATA			UDR0
+#define RX_ENABLE			RXEN0
+#define TX_ENABLE			TXEN0
+#define RXCI_ENABLE			RXCIE0
+#define UDRI_ENABLE			UDRIE0
+#define UART_2X				U2X0
+#define RXC_ISR				USART0_RX_vect
+#define UDRE_ISR			USART0_UDRE_vect
+#define UART_BAUDH			UBRR0H
+#define UART_BAUDL			UBRR0L
+#endif
+#endif
+
+#define BAUD				38400
 
 /** Size of the UART transmit buffer. Must be a power of 2 */
 #define UART_TX_BUFFER_SIZE		16

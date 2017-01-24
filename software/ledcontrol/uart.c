@@ -2,9 +2,14 @@
 
 void uart_Init() {
 	/* set baud rate */
-	UBRR0 = UART_UBRR_VAL;
+#include <util/setbaud.h>
+	UART_BAUDH = UBRRH_VALUE;
+	UART_BAUDL = UBRRL_VALUE;
+#if USE_2X
+	UART_CTRL_A |= (1<<UART_2X);
+#endif
 	/* enable TX and RX, enable receive interrupt */
-	UCSR0B |= (1 << RXEN0) | (1 << TXEN0) | (1 << RXCIE0);
+	UART_CTRL_B |= (1 << RX_ENABLE) | (1 << TX_ENABLE) | (1 << RXCI_ENABLE);
 }
 
 uint8_t uart_getByte(uint8_t *b) {
@@ -30,7 +35,7 @@ void uart_sendByte(uint8_t b) {
 	uart.TXBuffer[uart.txWritePtr] = b;
 	uart.txWritePtr = (uart.txWritePtr + 1) & UART_TX_SIZE_MASK;
 	/* there is data in the buffer -> enable send interrupt */
-	UCSR0B |= (1 << UDRIE0);
+	UART_CTRL_B |= (1 << UDRI_ENABLE);
 }
 
 void uart_sendString(const char *s){
@@ -47,8 +52,8 @@ void uart_sendString_P(const char *s) {
 	}
 }
 
-ISR(USART0_RX_vect) {
-	uint8_t data = UDR0;
+ISR(RXC_ISR) {
+	uint8_t data = UART_DATA;
 	/* calculate space in RX buffer */
 	uint8_t freespace = (uart.rxWritePtr - uart.rxReadPtr - 1)
 			% UART_RX_BUFFER_SIZE;
@@ -59,14 +64,14 @@ ISR(USART0_RX_vect) {
 	}
 }
 
-ISR(USART0_UDRE_vect) {
+ISR(UDRE_ISR) {
 	/* UART is ready to receive next byte */
-	UDR0 = uart.TXBuffer[uart.txReadPtr];
+	UART_DATA = uart.TXBuffer[uart.txReadPtr];
 	uart.txReadPtr = (uart.txReadPtr + 1) & UART_TX_SIZE_MASK;
 
 	if (uart.txReadPtr == uart.txWritePtr) {
 		/* this was the last byte, disable interrupt */
-		UCSR0B &= ~(1 << UDRIE0);
+		UART_CTRL_B &= ~(1 << UDRI_ENABLE);
 	}
 }
 
