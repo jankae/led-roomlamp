@@ -5,6 +5,12 @@
 
 #define I2C_BITRATE		100000
 
+#if ((F_CPU / I2C_BITRATE - 16) / 2 > 255)
+#error I2C Bitrate too low
+#elif ((F_CPU / I2C_BITRATE - 16) / 2 < 1)
+#error I2C_Bitrate too high
+#endif
+
 typedef enum {
 	I2C_OK,
 	I2C_NODEVICE,
