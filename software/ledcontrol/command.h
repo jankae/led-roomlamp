@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <avr/pgmspace.h>
+#include <avr/wdt.h>
 #include "conversions.h"
 #include "shell.h"
 #include "uart.h"
@@ -23,6 +24,7 @@ void command_parse(uint8_t argc, char *argv[]);
 uint8_t command_isMatch(const char *commandRAM, const char *compareFLASH);
 
 void command_help(uint8_t argc, char *argv[]);
+void command_reset(uint8_t argc, char *argv[]);
 void command_time(uint8_t argc, char *argv[]);
 void command_echo(uint8_t argc, char *argv[]);
 void command_I2Cscan(uint8_t argc, char *argv[]);

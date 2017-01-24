@@ -2,6 +2,7 @@
 
 const command_t commands[] PROGMEM = {
 		{ "help", 			&command_help,			"\t\tLists all available commands" },
+		{ "reset", 			&command_reset,			"\t\tResets the mikrocontroller" },
 		{ "time",			&command_time,			"\t\tPrints current system time"},
 		{ "echo",			&command_echo, 			"\t\tTurn terminal echo on/off"},
 		{ "i2cscan", 		&command_I2Cscan,		"\t\tScans all I2C addresses" },
@@ -52,6 +53,13 @@ void command_help(uint8_t argc, char *argv[]) {
 		uart_sendString_P(commands[i].description);
 		uart_sendString("\r\n");
 	}
+}
+
+void command_reset(uint8_t argc, char *argv[]){
+	/* Start watchdog timer */
+	wdt_enable(WDTO_30MS);
+	while (1)
+		;
 }
 
 void command_time(uint8_t argc, char *argv[]){
