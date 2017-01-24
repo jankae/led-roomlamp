@@ -7,7 +7,7 @@ void timing_Init(){
 	OCR1A = (F_CPU / 1000) - 1;
 	/* enable overflow interrupt */
 #if __AVR_ATmega8__
-	TIMSK |= (1<<TOIE1);
+	TIMSK |= (1<<OCIE1A);
 #elif __AVR_ATmega1284P__
 	TIMSK1 |= (1<<OCIE1A);
 #endif
