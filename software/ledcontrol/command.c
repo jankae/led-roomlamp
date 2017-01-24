@@ -2,6 +2,7 @@
 
 const command_t commands[] PROGMEM = {
 		{ "help", 			&command_help,			"\t\tLists all available commands" },
+		{ "time",			&command_time,			"\t\tPrints current system time"},
 		{ "echo",			&command_echo, 			"\t\tTurn terminal echo on/off"},
 		{ "i2cscan", 		&command_I2Cscan,		"\t\tScans all I2C addresses" },
 //		{ "i2creg", 		&command_I2Cregister,	"\t\tReads/writes I2C registers" },
@@ -51,6 +52,13 @@ void command_help(uint8_t argc, char *argv[]) {
 		uart_sendString_P(commands[i].description);
 		uart_sendString("\r\n");
 	}
+}
+
+void command_time(uint8_t argc, char *argv[]){
+	uart_sendString_P(PSTR("System time: "));
+	uint16_t time = timing_GetTime();
+	uart_sendUnsignedValue(time, 10);
+	uart_sendString_P(PSTR("ms\r\n"));
 }
 
 void command_echo(uint8_t argc, char *argv[]){

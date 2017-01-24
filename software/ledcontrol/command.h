@@ -23,6 +23,7 @@ void command_parse(uint8_t argc, char *argv[]);
 uint8_t command_isMatch(const char *commandRAM, const char *compareFLASH);
 
 void command_help(uint8_t argc, char *argv[]);
+void command_time(uint8_t argc, char *argv[]);
 void command_echo(uint8_t argc, char *argv[]);
 void command_I2Cscan(uint8_t argc, char *argv[]);
 void command_I2Cregister(uint8_t argc, char *argv[]);
