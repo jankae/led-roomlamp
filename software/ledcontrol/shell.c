@@ -46,7 +46,8 @@ void shell_Update(){
 }
 
 void shell_InputComplete(){
-	uart_sendString("\r\n");
+	if (shell.echo)
+		uart_sendString("\r\n");
 
 	if(shell.writePtr > 0){
 		/* got something */
