@@ -17,7 +17,7 @@ int main(void){
 	boost_Init();
 	channels_Init();
 	adc_Init();
-	usi_InitI2C(0b00110100);
+	usi_InitI2C(I2C_ADDRESS);
 
 	/* disable analog comparator */
 	ACSR |= (1<<ACD);

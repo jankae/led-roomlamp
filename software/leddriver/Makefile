@@ -1,5 +1,7 @@
 MCU = attiny44
 F_CPU = 20000000UL
+# Only even addresses allowed!
+I2C_ADDRESS = 0x10
 
 PROGRAMMER_TYPE = avrispmkII
 # extra arguments to avrdude: baud rate, chip type, -F flag, etc.
@@ -35,7 +37,7 @@ OBJECTS=$(SOURCES:.c=.o)
 HEADERS=$(SOURCES:.c=.h)
 
 ## Compilation options, type man avr-gcc if you're curious.
-CFLAGS = -Os -g -std=gnu99 -Wall -Wextra -DF_CPU=$(F_CPU)
+CFLAGS = -Os -g -std=gnu99 -Wall -Wextra -DF_CPU=$(F_CPU) -DI2C_ADDRESS=$(I2C_ADDRESS)
 
 ## Use short (8-bit) data types 
 CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums 
