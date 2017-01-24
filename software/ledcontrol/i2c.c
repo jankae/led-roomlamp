@@ -81,7 +81,8 @@ uint8_t i2c_ReadByte(uint8_t ack) {
 	else
 		TWCR &= ~(1 << TWEA);
 	TWCR |= (1 << TWINT);
-	while (!(TWCR & (1 << TWINT)))
+	uint16_t timer = timing_SetTimer(10);
+	while (!(TWCR & (1 << TWINT)) && !timing_CheckTimer(timer))
 		;
 	return TWDR;
 }
@@ -89,8 +90,12 @@ uint8_t i2c_ReadByte(uint8_t ack) {
 i2cResult_t i2c_WriteByte(uint8_t data) {
 	TWDR = data;
 	TWCR |= (1 << TWINT);
-	while (!(TWCR & (1 << TWINT)))
+	uint16_t timer = timing_SetTimer(10);
+	while (!(TWCR & (1 << TWINT)) && !timing_CheckTimer(timer))
 		;
+	if (!(TWCR & (1 << TWINT))) {
+		return I2C_TIMEOUT;
+	}
 	if ((TWSR & 0xF8) != 0x28) {
 		return I2C_NOACK;
 	}
@@ -101,8 +106,12 @@ i2cResult_t i2c_SendAddress(uint8_t address) {
 	TWDR = address;
 	TWCR &= ~(1 << TWSTA);
 	TWCR |= (1 << TWINT);
-	while (!(TWCR & (1 << TWINT)))
+	uint16_t timer = timing_SetTimer(10);
+	while (!(TWCR & (1 << TWINT)) && !timing_CheckTimer(timer))
 		;
+	if (!(TWCR & (1 << TWINT))) {
+		return I2C_TIMEOUT;
+	}
 	if ((TWSR & 0xF8) != 0x18 && (TWSR & 0xF8) != 0x40) {
 		return I2C_NODEVICE;
 	}
@@ -111,8 +120,12 @@ i2cResult_t i2c_SendAddress(uint8_t address) {
 
 i2cResult_t i2c_Start() {
 	TWCR |= (1 << TWINT) | (1 << TWSTA);
-	while (!(TWCR & (1 << TWINT)))
+	uint16_t timer = timing_SetTimer(10);
+	while (!(TWCR & (1 << TWINT)) && !timing_CheckTimer(timer))
 		;
+	if (!(TWCR & (1 << TWINT))) {
+		return I2C_TIMEOUT;
+	}
 	if (((TWSR & 0xF8) != 0x08) && ((TWSR & 0xF8) != 0x10))
 		return I2C_ERROR;
 	return I2C_OK;

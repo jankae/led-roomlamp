@@ -2,6 +2,7 @@
 #define I2C_H_
 
 #include <avr/io.h>
+#include "timing.h"
 
 #define I2C_BITRATE		100000
 
@@ -15,7 +16,8 @@ typedef enum {
 	I2C_OK,
 	I2C_NODEVICE,
 	I2C_NOACK,
-	I2C_ERROR
+	I2C_ERROR,
+	I2C_TIMEOUT
 } i2cResult_t;
 
 /**
