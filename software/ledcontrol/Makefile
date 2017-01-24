@@ -1,9 +1,9 @@
 MCU = atmega1284p
-F_CPU = 8000000UL
+F_CPU = 16000000UL
 
-PROGRAMMER_TYPE = avrispmkII #stk500v2
+PROGRAMMER_TYPE = stk500v2
 # extra arguments to avrdude: baud rate, chip type, -F flag, etc.
-PROGRAMMER_ARGS = -P usb #/dev/ttyUSB0
+PROGRAMMER_ARGS = -P/dev/ttyUSB0
 
 CC = avr-gcc
 OBJCOPY = avr-objcopy
