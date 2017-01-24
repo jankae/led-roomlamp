@@ -6,7 +6,7 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
-#ifdef __AVR_ATmega8__
+#if __AVR_ATmega8__
 #define UART_CTRL_A			UCSRA
 #define UART_CTRL_B			UCSRB
 #define UART_DATA			UDR
@@ -19,8 +19,7 @@
 #define UDRE_ISR			USART_UDRE_vect
 #define UART_BAUDH			UBRRH
 #define UART_BAUDL			UBRRL
-#else
-#ifdef __AVR_ATmega1284P__
+#elif __AVR_ATmega1284P__
 #define UART_CTRL_A			UCSR0A
 #define UART_CTRL_B			UCSR0B
 #define UART_DATA			UDR0
@@ -34,7 +33,7 @@
 #define UART_BAUDH			UBRR0H
 #define UART_BAUDL			UBRR0L
 #endif
-#endif
+
 
 #define BAUD				38400
 
