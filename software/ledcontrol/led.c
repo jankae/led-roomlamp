@@ -1,5 +1,27 @@
 #include "led.h"
 
+void led_Search(void) {
+	led.num = 0;
+	uint8_t address;
+	/* Scan I2C addresses for LED spots */
+	for (address = LED_MIN_ADDRESS; address <= LED_MAX_ADDRESS; address += 2) {
+		ledData_t data;
+		if (led_GetAllData(address, &data) != I2C_OK) {
+			/* no device at this address */
+			continue;
+		}
+		if (data.version >= LED_MIN_VERSION && data.version <= LED_MAX_VERSION) {
+			/* found an LED spot */
+			led.addresses[led.num] = address;
+			led.num++;
+			if (led.num >= LED_MAX_NUM) {
+				/* Can't store more spots */
+				break;
+			}
+		}
+	}
+}
+
 i2cResult_t led_GetAllData(uint8_t address, ledData_t *data) {
 	return i2c_ReadRegisters(address, 0, (uint8_t*) data, sizeof(ledData_t));
 }

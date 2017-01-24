@@ -4,7 +4,8 @@ const command_t commands[] PROGMEM = {
 		{ "help", 			&command_help,			"\t\tLists all available commands" },
 		{ "echo",			&command_echo, 			"\t\tTurn terminal echo on/off"},
 		{ "i2cscan", 		&command_I2Cscan,		"\t\tScans all I2C addresses" },
-		{ "i2creg", 		&command_I2Cregister,	"\t\tReads/writes I2C registers" },
+//		{ "i2creg", 		&command_I2Cregister,	"\t\tReads/writes I2C registers" },
+		{ "search",			&command_search,		"\t\tSearches for connected LED spots" },
 		{ "ledstats",		&command_ledstats, 		"\tDisplays LED status" },
 		{ "ledset",			&command_ledset, 		"\t\tSets LED values" },
 		{ "light",			&command_light, 		"\t\tSets the amount of light in percent" }
@@ -224,6 +225,22 @@ void command_I2Cregister(uint8_t argc, char *argv[]) {
 	}
 }
 
+void command_search(uint8_t argc, char *argv[]){
+	/* Initiate new led search */
+	led_Search();
+	/* Print result */
+	uart_sendString_P(PSTR("Found "));
+	uart_sendUnsignedValue(led.num, 10);
+	uart_sendString_P(PSTR(" LED spots.\r\n"));
+	uint8_t i;
+	for(i=0;i<led.num;i++){
+		uart_sendUnsignedValue(i, 10);
+		uart_sendString_P(PSTR(": 0x"));
+		uart_sendUnsignedValue(led.addresses[i], 16);
+		uart_sendString_P(PSTR("\r\n"));
+	}
+}
+
 void command_ledstatsPrint(uint8_t address, ledData_t *data) {
 	uart_sendString_P(PSTR("0x"));
 	uart_sendUnsignedValue(address, 16);
@@ -268,8 +285,8 @@ void command_ledstats(uint8_t argc, char *argv[]) {
 	if (argc == 2 && command_isMatch(argv[1], PSTR("-a"))) {
 		/* try to read all addresses */
 		uint8_t i;
-		for (i = 1; i <= 127; i++) {
-			uint8_t address = (i * 2) + 1;
+		for (i = 0; i < led.num; i++) {
+			uint8_t address = led.addresses[i];
 			if (i2c_ReadRegisters(address, 0, (uint8_t*) &data, sizeof(data))
 					== I2C_OK) {
 				command_ledstatsPrint(address, &data);
@@ -394,11 +411,10 @@ void command_ledset(uint8_t argc, char *argv[]) {
 	}
 
 	/* iterate over all addresses */
-	for (i = 1; i <= 127; i++) {
-		/* shift i to 7bit I2C address*/
-		uint8_t address = i << 1;
+	for (i = 0; i < led.num; i++) {
+		uint8_t address = led.addresses[i];
 		if (!allLEDs) {
-			/* -a hasn't been specified, try to find an address match */
+			/* -a hasn't been specified, set address */
 			uint8_t j;
 			for (j = 1; j < argc; j++) {
 				/* abort search on first option */
@@ -472,9 +488,8 @@ void command_light(uint8_t argc, char *argv[]){
 	uint16_t current = 300 * percent / 100;
 	/* iterate over all addresses */
 	uint8_t i;
-	for (i = 1; i <= 127; i++) {
-		/* shift i to 7bit I2C address*/
-		uint8_t address = i << 1;
+	for (i = 0; i < led.num; i++) {
+		uint8_t address = led.addresses[i];
 		led_SetCurrent(address, current);
 		led_UpdateSettings(address);
 	}
