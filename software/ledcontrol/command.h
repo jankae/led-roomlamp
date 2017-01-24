@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <avr/pgmspace.h>
 #include "conversions.h"
+#include "shell.h"
 #include "uart.h"
 #include "i2c.h"
 #include "led.h"
@@ -22,9 +23,11 @@ void command_parse(uint8_t argc, char *argv[]);
 uint8_t command_isMatch(const char *commandRAM, const char *compareFLASH);
 
 void command_help(uint8_t argc, char *argv[]);
+void command_echo(uint8_t argc, char *argv[]);
 void command_I2Cscan(uint8_t argc, char *argv[]);
 void command_I2Cregister(uint8_t argc, char *argv[]);
 void command_ledstats(uint8_t argc, char *argv[]);
 void command_ledset(uint8_t argc, char *argv[]);
+void command_light(uint8_t argc, char *argv[]);
 
 #endif

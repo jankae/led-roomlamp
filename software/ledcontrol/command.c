@@ -2,10 +2,12 @@
 
 const command_t commands[] PROGMEM = {
 		{ "help", 			&command_help,			"\t\tLists all available commands" },
+		{ "echo",			&command_echo, 			"\t\tTurn terminal echo on/off"},
 		{ "i2cscan", 		&command_I2Cscan,		"\t\tScans all I2C addresses" },
 		{ "i2creg", 		&command_I2Cregister,	"\t\tReads/writes I2C registers" },
 		{ "ledstats",		&command_ledstats, 		"\tDisplays LED status" },
-		{ "ledset",			&command_ledset, 		"\t\tSets LED values" }
+		{ "ledset",			&command_ledset, 		"\t\tSets LED values" },
+		{ "light",			&command_light, 		"\t\tSets the amount of light in percent" }
 };
 
 void command_parse(uint8_t argc, char *argv[]) {
@@ -48,6 +50,20 @@ void command_help(uint8_t argc, char *argv[]) {
 		uart_sendString_P(commands[i].description);
 		uart_sendString("\r\n");
 	}
+}
+
+void command_echo(uint8_t argc, char *argv[]){
+	if (argc == 2) {
+		if (command_isMatch(argv[1], PSTR("on"))) {
+			shell.echo = 1;
+			return;
+		} else if (command_isMatch(argv[1], PSTR("off"))) {
+			shell.echo = 0;
+			return;
+		}
+	}
+	uart_sendString_P(PSTR("usage: echo on | off\r\n"));
+	return;
 }
 
 void command_I2Cscan(uint8_t argc, char *argv[]) {
@@ -441,3 +457,25 @@ void command_ledset(uint8_t argc, char *argv[]) {
 	}
 }
 
+void command_light(uint8_t argc, char *argv[]){
+	if (argc != 2) {
+		uart_sendString_P(PSTR("usage: light percent\r\n"));
+		return;
+	}
+	/* extract percentage from parameter */
+	uint32_t percent = strtol(argv[1], NULL, 0);
+	if(percent>100) {
+		uart_sendString_P(PSTR("Unable to set more than 100%\r\n"));
+		return;
+	}
+	/* scale percentage to current */
+	uint16_t current = 300 * percent / 100;
+	/* iterate over all addresses */
+	uint8_t i;
+	for (i = 1; i <= 127; i++) {
+		/* shift i to 7bit I2C address*/
+		uint8_t address = i << 1;
+		led_SetCurrent(address, current);
+		led_UpdateSettings(address);
+	}
+}

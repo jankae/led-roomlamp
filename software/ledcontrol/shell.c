@@ -1,5 +1,10 @@
 #include "shell.h"
 
+void shell_Init(){
+	shell.echo = 1;
+	shell_Reset();
+}
+
 void shell_Reset(){
 	shell.writePtr = 0;
 	uart_sendString(" > ");
@@ -24,15 +29,18 @@ void shell_Update(){
 			if (shell.writePtr > 0) {
 				shell.writePtr--;
 				shell.inputBuffer[shell.writePtr] = ' ';
-				/* move cursor one position back */
-				uart_sendString(VT100_CURSOR_LEFT);
-				/* erase text after cursor */
-				uart_sendString(VT100_ERASE_AFTER_CSR);
+				if (shell.echo) {
+					/* move cursor one position back */
+					uart_sendString(VT100_CURSOR_LEFT);
+					/* erase text after cursor */
+					uart_sendString(VT100_ERASE_AFTER_CSR);
+				}
 			}
 		} else if (isprint(c)) {
 			/* add char to buffer */
 			shell.inputBuffer[shell.writePtr++] = c;
-			uart_sendByte(c);
+			if (shell.echo)
+				uart_sendByte(c);
 		}
 	}
 }

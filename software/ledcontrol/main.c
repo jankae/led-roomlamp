@@ -5,9 +5,10 @@ int main(void){
 	uart_Init();
 	sei();
 
-	i2c_Init();
-	shell_Reset();
+	uart_sendString_P(PSTR("led-control\n"));
 
+	i2c_Init();
+	shell_Init();
 
 	while(1){
 		shell_Update();

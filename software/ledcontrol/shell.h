@@ -14,7 +14,10 @@
 struct {
 	uint8_t inputBuffer[SHELL_BUFFER_SIZE];
 	uint8_t writePtr;
+	uint8_t echo;
 } shell;
+
+void shell_Init();
 
 void shell_Reset();
 
