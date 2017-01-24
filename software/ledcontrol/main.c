@@ -1,7 +1,9 @@
 #include <avr/io.h>
 #include "shell.h"
+#include "timing.h"
 
 int main(void){
+	timing_Init();
 	uart_Init();
 	sei();
 
