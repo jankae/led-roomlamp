@@ -23,6 +23,7 @@ void usi_CheckForStop(void) {
 	if(USISR & (1<<USIPF)){
 		/* Stop flag is set */
 		usi.state = USI_SLAVE_IDLE;
+		SET_USI_TO_TWI_START_CONDITION_MODE();
 	}
 }
 
