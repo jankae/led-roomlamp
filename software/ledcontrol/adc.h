@@ -34,6 +34,8 @@ struct {
 
 void ADC_Init();
 
+uint16_t ADC_PeakSearch(void);
+
 ISR(ADC_vect);
 
 #endif /* ADC_H_ */

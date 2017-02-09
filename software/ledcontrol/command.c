@@ -8,9 +8,10 @@ const command_t commands[] PROGMEM = {
 		{ "i2cscan", 		&command_I2Cscan,		"\t\tScans all I2C addresses" },
 //		{ "i2creg", 		&command_I2Cregister,	"\t\tReads/writes I2C registers" },
 		{ "search",			&command_search,		"\t\tSearches for connected LED spots" },
-		{ "ledstats",		&command_ledstats, 		"\tDisplays LED status" },
-		{ "ledset",			&command_ledset, 		"\t\tSets LED values" },
-		{ "light",			&command_light, 		"\t\tSets the amount of light in percent" }
+//		{ "ledstats",		&command_ledstats, 		"\tDisplays LED status" },
+//		{ "ledset",			&command_ledset, 		"\t\tSets LED values" },
+		{ "light",			&command_light, 		"\t\tSets the amount of light in percent" },
+		{ "whistle",		&command_whistle,		"\t\tTurn whistle control on/off"},
 };
 
 void command_parse(uint8_t argc, char *argv[]) {
@@ -509,4 +510,18 @@ void command_light(uint8_t argc, char *argv[]){
 		led_SetCurrent(address, current);
 		led_UpdateSettings(address);
 	}
+}
+
+void command_whistle(uint8_t argc, char *argv[]){
+	if (argc == 2) {
+		if (command_isMatch(argv[1], PSTR("on"))) {
+			adc.enabled = 1;
+			return;
+		} else if (command_isMatch(argv[1], PSTR("off"))) {
+			adc.enabled = 0;
+			return;
+		}
+	}
+	uart_sendString_P(PSTR("usage: echo on | off\r\n"));
+	return;
 }

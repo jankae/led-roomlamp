@@ -34,13 +34,14 @@ TARGET = main
 # Object files: will find all .c/.h files in current directory
 #  and in LIBDIR.  If you have any other (sub-)directories with code,
 #  you can add them in to SOURCES below in the wildcard statement.
-SOURCES=$(wildcard *.c *.S)
-OBJECTS=$(SOURCES:.c=.o)
+SOURCES=$(wildcard *.c)
+ASOURCES=$(wildcard *.S)
+OBJECTS=$(SOURCES:.c=.o) $(ASOURCES:.S=.o)
 HEADERS=$(SOURCES:.c=.h)
 
 ## Compilation options, type man avr-gcc if you're curious.
 CFLAGS = -Os -g -std=gnu99 -Wall -Wextra -DF_CPU=$(F_CPU)
-#ASFLAGS = -DF_CPU=$(F_CPU)
+ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 ## Use short (8-bit) data types 
 CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums 
 ## Splits up object files per function
@@ -59,11 +60,11 @@ all: $(TARGET).hex
 	$(AVRSIZE) -C --mcu=$(MCU) $(TARGET).elf
 
 ##  To make .o files from .c files 
-.c.o:
+%.o: %.c
 	 $(CC) $(CFLAGS) $(TARGET_ARCH) -c -o $@ $<
 	 
-.S.o:
-	 $(CC) $(ASFLAGS) -o $@ -c $<
+%.o: %.S
+	 $(CC) -c $(ASFLAGS) $(TARGET_ARCH) $< -o $@
 
 $(TARGET).elf: $(OBJECTS)
 	$(CC) $(LDFLAGS) $(TARGET_ARCH) $^ $(LDLIBS) -o $@

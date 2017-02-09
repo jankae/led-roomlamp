@@ -10,6 +10,7 @@
 #include "uart.h"
 #include "i2c.h"
 #include "led.h"
+#include "adc.h"
 
 typedef void (*commandHandler_t) (uint8_t, char *[]);
 
@@ -33,5 +34,6 @@ void command_search(uint8_t argc, char *argv[]);
 void command_ledstats(uint8_t argc, char *argv[]);
 void command_ledset(uint8_t argc, char *argv[]);
 void command_light(uint8_t argc, char *argv[]);
+void command_whistle(uint8_t argc, char *argv[]);
 
 #endif

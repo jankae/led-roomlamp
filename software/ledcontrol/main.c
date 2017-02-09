@@ -46,7 +46,9 @@ int main(void){
 				for (i = 0; i < led.num; i++) {
 					uint8_t address = led.addresses[i];
 					led_SetCurrent(address, current);
+					timing_Wait(1);
 					led_UpdateSettings(address);
+					timing_Wait(1);
 				}
 			}
 		}

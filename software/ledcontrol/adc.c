@@ -1,16 +1,18 @@
 #include "adc.h"
 
-void ADC_Init(){
+void ADC_Init() {
 	/* AVCC as reference, mic channel is 0 */
-	ADMUX = (1<<REFS0);
+	ADMUX = (1 << REFS0);
 	/* free-running, enable interrupt, prescaler = 128 */
-	ADCSRA |= (1<<ADEN) | (1<<ADFR) | (1<<ADIE) | (1<<ADPS2) | (1<<ADPS1);
+	ADCSRA |= (1 << ADEN) | (1 << ADFR) | (1 << ADIE) | (1 << ADPS2)
+			| (1 << ADPS1);
 	/* start ADC */
 	ADCSRA |= (1 << ADSC);
 	adc.bufcnt = 0;
+	adc.enabled = 1;
 }
 
-uint16_t ADC_PeakSearch(void){
+uint16_t ADC_PeakSearch(void) {
 	if (!adc.newData) {
 		/* ADC hasn't finished sampling */
 		return 0;
@@ -61,7 +63,7 @@ uint16_t ADC_PeakSearch(void){
 	}
 	/* a peak is present, check if main frequency is within accepted range */
 	uint32_t freq = (uint32_t) peak * ADC_SAMPLE_FREQ / FFT_N;
-	if(freq < 750 || freq > 2000) {
+	if (freq < 750 || freq > 2000) {
 		/* peak outside of typical whistle frequency */
 		adc.newData = 0;
 		return 0;

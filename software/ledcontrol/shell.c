@@ -59,7 +59,13 @@ void shell_InputComplete(){
 			/* store pointer to this argument */
 			argv[argc++] = ptr;
 			/* search end of argument */
-			ptr = strchr(ptr, ' ');
+			while (*ptr != ' ') {
+				ptr++;
+				if (!*ptr) {
+					ptr = NULL;
+					break;
+				}
+			}
 			if(ptr) {
 				/* got more arguments */
 				/* mark end of this argument */
