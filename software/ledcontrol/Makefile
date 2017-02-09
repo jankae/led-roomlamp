@@ -1,9 +1,13 @@
-MCU = atmega1284p
-F_CPU = 16000000UL
+MCU = atmega8
+F_CPU = 8000000UL
 
-PROGRAMMER_TYPE = stk500v2
+# Settings for flashing via esp-link
+PROGRAMMER_TYPE = arduino
+PROGRAMMER_ARGS = -D -Pnet:192.168.178.174:23 -b38400
+
+#PROGRAMMER_TYPE = stk500v2
 # extra arguments to avrdude: baud rate, chip type, -F flag, etc.
-PROGRAMMER_ARGS = -P/dev/ttyUSB0
+#PROGRAMMER_ARGS = -P/dev/ttyUSB0
 
 CC = avr-gcc
 OBJCOPY = avr-objcopy
@@ -30,13 +34,13 @@ TARGET = main
 # Object files: will find all .c/.h files in current directory
 #  and in LIBDIR.  If you have any other (sub-)directories with code,
 #  you can add them in to SOURCES below in the wildcard statement.
-SOURCES=$(wildcard *.c)
+SOURCES=$(wildcard *.c *.S)
 OBJECTS=$(SOURCES:.c=.o)
 HEADERS=$(SOURCES:.c=.h)
 
 ## Compilation options, type man avr-gcc if you're curious.
 CFLAGS = -Os -g -std=gnu99 -Wall -Wextra -DF_CPU=$(F_CPU)
-
+#ASFLAGS = -DF_CPU=$(F_CPU)
 ## Use short (8-bit) data types 
 CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums 
 ## Splits up object files per function
@@ -55,8 +59,11 @@ all: $(TARGET).hex
 	$(AVRSIZE) -C --mcu=$(MCU) $(TARGET).elf
 
 ##  To make .o files from .c files 
-%.o: %.c $(HEADERS) Makefile
-	 $(CC) $(CFLAGS) $(TARGET_ARCH) -c -o $@ $<;
+.c.o:
+	 $(CC) $(CFLAGS) $(TARGET_ARCH) -c -o $@ $<
+	 
+.S.o:
+	 $(CC) $(ASFLAGS) -o $@ -c $<
 
 $(TARGET).elf: $(OBJECTS)
 	$(CC) $(LDFLAGS) $(TARGET_ARCH) $^ $(LDLIBS) -o $@

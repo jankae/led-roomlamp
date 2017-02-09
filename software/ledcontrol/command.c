@@ -501,7 +501,7 @@ void command_light(uint8_t argc, char *argv[]){
 		return;
 	}
 	/* scale percentage to current */
-	uint16_t current = 300 * percent / 100;
+	uint16_t current = LED_MAX_CURRENT * percent / 100;
 	/* iterate over all addresses */
 	uint8_t i;
 	for (i = 0; i < led.num; i++) {

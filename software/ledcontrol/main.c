@@ -1,11 +1,13 @@
 #include <avr/io.h>
 #include "shell.h"
 #include "timing.h"
+#include "adc.h"
 
 int main(void){
 	wdt_disable();
 	timing_Init();
 	uart_Init();
+	ADC_Init();
 	sei();
 
 	uart_sendString_P(PSTR("led-control\n"));
@@ -29,5 +31,24 @@ int main(void){
 
 	while(1){
 		shell_Update();
+		if(adc.enabled) {
+			uint16_t freq = ADC_PeakSearch();
+			if(freq) {
+				uint16_t current = 0;
+				if(freq>2000) {
+					current = LED_MAX_CURRENT;
+				} else if(freq>1000) {
+					freq -= 1000;
+					uint32_t freqSquared = (uint32_t) freq * freq / 1000;
+					current = freqSquared * LED_MAX_CURRENT / 1000;
+				}
+				uint8_t i;
+				for (i = 0; i < led.num; i++) {
+					uint8_t address = led.addresses[i];
+					led_SetCurrent(address, current);
+					led_UpdateSettings(address);
+				}
+			}
+		}
 	}
 }

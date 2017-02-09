@@ -10,6 +10,8 @@
 #define LED_MIN_VERSION		1
 #define LED_MAX_VERSION		1
 
+#define LED_MAX_CURRENT		300
+
 typedef struct {
 	uint8_t control;
 	uint8_t version;
