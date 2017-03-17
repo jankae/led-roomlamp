@@ -60,7 +60,7 @@ all: $(TARGET).hex
 	$(AVRSIZE) -C --mcu=$(MCU) $(TARGET).elf
 
 ##  To make .o files from .c files 
-%.o: %.c
+%.o: %.c Makefile
 	 $(CC) $(CFLAGS) $(TARGET_ARCH) -c -o $@ $<
 	 
 %.o: %.S

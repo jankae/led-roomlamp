@@ -18,11 +18,15 @@
 /** ADC sampling frequency in Hz */
 #define ADC_SAMPLE_FREQ			9615
 
+/** Minimum peak level */
+#define ADC_PEAK_MIN_HEIGHT		32
 /** Maximum width of accepted peak in Hz (one direction, e.i. half of the whole peak width */
 #define ADC_PEAK_MAX_WIDTH		400UL
 #define ADC_PEAK_MAX_WIDTH_FFT	(ADC_PEAK_MAX_WIDTH * FFT_N /ADC_SAMPLE_FREQ)
-/** Ratio of the peak which the remaining spectrum must not exceed in order to accept the peak */
-#define ADC_PEAK_OFF_PEAK_RATIO	3
+
+#define ADC_SPECTRAL_RATIO_NUM	5
+#define ADC_SPECTRAL_RATIO_DEN  6
+
 
 struct {
 	int16_t buffer[ADC_BUFFER_LENGTH];

@@ -44,23 +44,32 @@ uint16_t ADC_PeakSearch(void) {
 			peak = i;
 		}
 	}
+	if(max < ADC_PEAK_MIN_HEIGHT) {
+		/* peak not big enough */
+		adc.newData = 0;
+		return 0;
+	}
+	uint32_t energy = 0;
+	uint32_t energyPeak = 0;
 	/* check if this is the only peak present */
 	for (i = 0; i < FFT_N / 2; i++) {
-		if (spectrum[i] > max / ADC_PEAK_OFF_PEAK_RATIO) {
-			/* found another frequency with high power */
-			/* check if it is still the same peak */
-			uint8_t diff;
-			if (i > peak)
-				diff = i - peak;
-			else
-				diff = peak - i;
-			if (diff > ADC_PEAK_MAX_WIDTH_FFT) {
-				/* different peak -> no identifiable main peak */
-				adc.newData = 0;
-				return 0;
-			}
+		uint16_t e = spectrum[i] * spectrum[i];
+		energy += e;
+		uint8_t diff;
+		if (i > peak)
+			diff = i - peak;
+		else
+			diff = peak - i;
+		if (diff <= ADC_PEAK_MAX_WIDTH_FFT) {
+			energyPeak += e;
 		}
 	}
+	if (energy * ADC_SPECTRAL_RATIO_NUM > energyPeak * ADC_SPECTRAL_RATIO_DEN) {
+		/* not enough energy in peak */
+		adc.newData = 0;
+		return 0;
+	}
+
 	/* a peak is present, check if main frequency is within accepted range */
 	uint32_t freq = (uint32_t) peak * ADC_SAMPLE_FREQ / FFT_N;
 	if (freq < 750 || freq > 2000) {
