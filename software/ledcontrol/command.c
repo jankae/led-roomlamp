@@ -522,6 +522,6 @@ void command_whistle(uint8_t argc, char *argv[]){
 			return;
 		}
 	}
-	uart_sendString_P(PSTR("usage: echo on | off\r\n"));
+	uart_sendString_P(PSTR("usage: whistle on | off\r\n"));
 	return;
 }

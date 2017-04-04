@@ -29,10 +29,18 @@ int main(void){
 		timing_Wait(1);
 	}
 
+	int16_t oldFreq = 0;
+	int16_t newFreq = 0;
+
 	while(1){
 		shell_Update();
-		if(adc.enabled) {
-			uint16_t freq = ADC_PeakSearch();
+		if(adc.enabled && adc.newData) {
+			oldFreq = newFreq;
+			newFreq = ADC_PeakSearch();
+			int16_t freq = 0;
+			if(oldFreq-newFreq<50 && newFreq-oldFreq<50) {
+				freq = (oldFreq + newFreq) / 2;
+			}
 			if(freq) {
 				uint16_t current = 0;
 				if(freq>2000) {

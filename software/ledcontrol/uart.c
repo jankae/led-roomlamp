@@ -29,7 +29,7 @@ void uart_sendByte(uint8_t b) {
 	do {
 		/* calculate space in RX buffer */
 		freespace =
-				(uart.txWritePtr - uart.txReadPtr - 1) % UART_TX_BUFFER_SIZE;
+				(uart.txReadPtr - uart.txWritePtr - 1) % UART_TX_BUFFER_SIZE;
 	} while (!freespace);
 	/* add byte to buffer */
 	uart.TXBuffer[uart.txWritePtr] = b;
@@ -55,7 +55,7 @@ void uart_sendString_P(const char *s) {
 ISR(RXC_ISR) {
 	uint8_t data = UART_DATA;
 	/* calculate space in RX buffer */
-	uint8_t freespace = (uart.rxWritePtr - uart.rxReadPtr - 1)
+	uint8_t freespace = (uart.rxReadPtr - uart.rxWritePtr - 1)
 			% UART_RX_BUFFER_SIZE;
 	/* add received byte to buffer if space available */
 	if (freespace) {
