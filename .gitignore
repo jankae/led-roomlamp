@@ -12,3 +12,4 @@ software/RemoteSystemsTempFiles
 *.lst
 *.xcf
 Packages
+*.depend
