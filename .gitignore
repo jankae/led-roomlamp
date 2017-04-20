@@ -9,3 +9,6 @@ software/RemoteSystemsTempFiles
 *.elf
 *html
 *latex
+*.lst
+*.xcf
+Packages
