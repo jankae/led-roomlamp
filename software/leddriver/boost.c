@@ -890,10 +890,10 @@ void boost_Update(void) {
 			int16_t currDiff = boost.setCurrent - boost.current;
 			/* change duty cycle */
 			int16_t change = currDiff / 5;
-			if (change > 10) {
-				change = 10;
-			} else if (change < -10) {
-				change = -10;
+			if (change > 5) {
+				change = 5;
+			} else if (change < -5) {
+				change = -5;
 			}
 			boost.dutyCycleIt += change;
 		}
