@@ -1,11 +1,13 @@
 #include "adc.h"
 
+uint16_t avgSpectrum[FFT_N/2];
+
 void ADC_Init() {
 	/* AVCC as reference, mic channel is 0 */
 	ADMUX = (1 << REFS0);
 	/* free-running, enable interrupt, prescaler = 128 */
-	ADCSRA |= (1 << ADEN) | (1 << ADFR) | (1 << ADIE) | (1 << ADPS2)
-			| (1 << ADPS1);
+	ADCSRA |= (1 << ADEN) | (1 << ADATE) | (1 << ADIE) | (1 << ADPS2)
+			| (1 << ADPS1) | (1 << ADPS0);
 	/* start ADC */
 	ADCSRA |= (1 << ADSC);
 	adc.bufcnt = 0;
@@ -19,7 +21,7 @@ uint16_t ADC_PeakSearch(void) {
 	}
 	/* remove DC offset of ADC signal */
 	uint8_t i;
-	uint16_t sum = 0;
+	uint32_t sum = 0;
 	for (i = 0; i < ADC_BUFFER_LENGTH; i++) {
 		sum += adc.buffer[i];
 	}
@@ -33,27 +35,47 @@ uint16_t ADC_PeakSearch(void) {
 	/* use ADC buffer as result of ADC -> saves some RAM */
 	uint16_t *spectrum = (uint16_t*) adc.buffer;
 	fft_output(adc.bfly_buff, spectrum);
+
+	if (adc.printSpectrum) {
+		/* print spectrum */
+		uart_sendString_P(PSTR(VT100_ERASE_SCREEN));
+		uart_sendString_P(PSTR(VT100_CURSOR_HOME));
+		for (i = 0; i < FFT_N / 2; i++) {
+			uint8_t j;
+			for (j = 0; (j < spectrum[i]) && (j < 255); j++) {
+				uart_sendByte('*');
+			}
+			uart_sendString_P(PSTR("\r\n"));
+		}
+		adc.printSpectrum = 0;
+	}
+	/* update average spectrum */
+	for (i = 0; i < FFT_N / 2; i++) {
+		avgSpectrum[i] -= avgSpectrum[i]>>2;
+		avgSpectrum[i] += spectrum[i];
+	}
+	/* ADC can start sampling new data */
+	adc.newData = 0;
 	/* peak search: identify single peak (if present) */
 
 	/* find maximum value */
 	uint16_t max = 0;
 	uint16_t peak = 0;
 	for (i = 0; i < FFT_N / 2; i++) {
-		if (spectrum[i] > max) {
-			max = spectrum[i];
+		if (avgSpectrum[i] > max) {
+			max = avgSpectrum[i];
 			peak = i;
 		}
 	}
 	if(max < ADC_PEAK_MIN_HEIGHT) {
 		/* peak not big enough */
-		adc.newData = 0;
 		return 0;
 	}
 	uint32_t energy = 0;
 	uint32_t energyPeak = 0;
 	/* check if this is the only peak present */
 	for (i = 0; i < FFT_N / 2; i++) {
-		uint16_t e = spectrum[i] * spectrum[i];
+		uint32_t e = avgSpectrum[i] * avgSpectrum[i];
 		energy += e;
 		uint8_t diff;
 		if (i > peak)
@@ -66,7 +88,6 @@ uint16_t ADC_PeakSearch(void) {
 	}
 	if (energy * ADC_SPECTRAL_RATIO_NUM > energyPeak * ADC_SPECTRAL_RATIO_DEN) {
 		/* not enough energy in peak */
-		adc.newData = 0;
 		return 0;
 	}
 
@@ -74,7 +95,6 @@ uint16_t ADC_PeakSearch(void) {
 	uint32_t freq = (uint32_t) peak * ADC_SAMPLE_FREQ / FFT_N;
 	if (freq < 750 || freq > 2000) {
 		/* peak outside of typical whistle frequency */
-		adc.newData = 0;
 		return 0;
 	}
 	/* there is a peak in the accepted frequency range */
@@ -83,10 +103,9 @@ uint16_t ADC_PeakSearch(void) {
 	uint16_t spectrumSum = 0;
 	for (i = peak - ADC_PEAK_MAX_WIDTH_FFT; i <= peak + ADC_PEAK_MAX_WIDTH_FFT;
 			i++) {
-		freq += (uint32_t) spectrum[i] * i * ADC_SAMPLE_FREQ / FFT_N;
-		spectrumSum += spectrum[i];
+		freq += (uint32_t) avgSpectrum[i] * i * ADC_SAMPLE_FREQ / FFT_N;
+		spectrumSum += avgSpectrum[i];
 	}
-	adc.newData = 0;
 	freq /= spectrumSum;
 	return freq;
 }
@@ -95,7 +114,7 @@ ISR(ADC_vect) {
 	if (!adc.newData) {
 		/* conversion finished, store result values */
 		adc.buffer[adc.bufcnt++] = ADC;
-		if (adc.bufcnt == ADC_BUFFER_LENGTH) {
+		if (adc.bufcnt >= ADC_BUFFER_LENGTH) {
 			adc.bufcnt = 0;
 			adc.newData = 1;
 		}

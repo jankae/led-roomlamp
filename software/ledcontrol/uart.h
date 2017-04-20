@@ -32,6 +32,19 @@
 #define UDRE_ISR			USART0_UDRE_vect
 #define UART_BAUDH			UBRR0H
 #define UART_BAUDL			UBRR0L
+#elif __AVR_ATmega328P__
+#define UART_CTRL_A			UCSR0A
+#define UART_CTRL_B			UCSR0B
+#define UART_DATA			UDR0
+#define RX_ENABLE			RXEN0
+#define TX_ENABLE			TXEN0
+#define RXCI_ENABLE			RXCIE0
+#define UDRI_ENABLE			UDRIE0
+#define UART_2X				U2X0
+#define RXC_ISR				USART_RX_vect
+#define UDRE_ISR			USART_UDRE_vect
+#define UART_BAUDH			UBRR0H
+#define UART_BAUDL			UBRR0L
 #endif
 
 
@@ -99,9 +112,5 @@ void uart_sendString_P(const char *s);
 void uart_sendValue(int16_t val, uint8_t base);
 
 void uart_sendUnsignedValue(uint16_t val, uint8_t base);
-
-ISR(USART0_RX_vect);
-
-ISR(USART0_UDRE_vect);
 
 #endif

@@ -12,6 +12,8 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 #include "ffft.h"
+#include "uart.h"
+#include "VT100.h"
 
 /** Length of ADC sampling buffer. Must be the same length as FFT_N */
 #define ADC_BUFFER_LENGTH 		FFT_N
@@ -19,13 +21,13 @@
 #define ADC_SAMPLE_FREQ			9615
 
 /** Minimum peak level */
-#define ADC_PEAK_MIN_HEIGHT		32
+#define ADC_PEAK_MIN_HEIGHT		64
 /** Maximum width of accepted peak in Hz (one direction, e.i. half of the whole peak width */
-#define ADC_PEAK_MAX_WIDTH		400UL
+#define ADC_PEAK_MAX_WIDTH		120UL
 #define ADC_PEAK_MAX_WIDTH_FFT	(ADC_PEAK_MAX_WIDTH * FFT_N /ADC_SAMPLE_FREQ)
 
-#define ADC_SPECTRAL_RATIO_NUM	7
-#define ADC_SPECTRAL_RATIO_DEN  8
+#define ADC_SPECTRAL_RATIO_NUM	1
+#define ADC_SPECTRAL_RATIO_DEN  2
 
 
 struct {
@@ -34,6 +36,7 @@ struct {
 	complex_t bfly_buff[FFT_N];
 	volatile uint8_t newData;
 	uint8_t enabled;
+	uint8_t printSpectrum;
 } adc;
 
 void ADC_Init();

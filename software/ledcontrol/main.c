@@ -29,23 +29,16 @@ int main(void){
 		timing_Wait(1);
 	}
 
-	int16_t oldFreq = 0;
-	int16_t newFreq = 0;
-
 	while(1){
 		shell_Update();
 		if(adc.enabled && adc.newData) {
-			oldFreq = newFreq;
-			newFreq = ADC_PeakSearch();
-			int16_t freq = 0;
-			if(oldFreq-newFreq<50 && newFreq-oldFreq<50) {
-				freq = (oldFreq + newFreq) / 2;
-			}
-			if(freq) {
+			/* store new measurement */
+			uint16_t freq = ADC_PeakSearch();
+			if (freq > 750) {
 				uint16_t current = 0;
-				if(freq>2000) {
+				if (freq > 2000) {
 					current = LED_MAX_CURRENT;
-				} else if(freq>1000) {
+				} else if (freq > 1000) {
 					freq -= 1000;
 					uint32_t freqSquared = (uint32_t) freq * freq / 1000;
 					current = freqSquared * LED_MAX_CURRENT / 1000;

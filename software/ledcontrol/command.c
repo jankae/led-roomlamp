@@ -8,10 +8,11 @@ const command_t commands[] PROGMEM = {
 		{ "i2cscan", 		&command_I2Cscan,		"\t\tScans all I2C addresses" },
 //		{ "i2creg", 		&command_I2Cregister,	"\t\tReads/writes I2C registers" },
 		{ "search",			&command_search,		"\t\tSearches for connected LED spots" },
-//		{ "ledstats",		&command_ledstats, 		"\tDisplays LED status" },
-//		{ "ledset",			&command_ledset, 		"\t\tSets LED values" },
+		{ "ledstats",		&command_ledstats, 		"\tDisplays LED status" },
+		{ "ledset",			&command_ledset, 		"\t\tSets LED values" },
 		{ "light",			&command_light, 		"\t\tSets the amount of light in percent" },
 		{ "whistle",		&command_whistle,		"\t\tTurn whistle control on/off"},
+		{ "spectrum",		&command_spectrum,		"\tPrints the audio spectrum"},
 };
 
 void command_parse(uint8_t argc, char *argv[]) {
@@ -524,4 +525,8 @@ void command_whistle(uint8_t argc, char *argv[]){
 	}
 	uart_sendString_P(PSTR("usage: whistle on | off\r\n"));
 	return;
+}
+
+void command_spectrum(uint8_t argc, char *argv[]) {
+	adc.printSpectrum = 1;
 }

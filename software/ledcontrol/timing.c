@@ -10,6 +10,8 @@ void timing_Init(){
 	TIMSK |= (1<<OCIE1A);
 #elif __AVR_ATmega1284P__
 	TIMSK1 |= (1<<OCIE1A);
+#elif __AVR_ATmega328P__
+	TIMSK1 |= (1<<OCIE1A);
 #endif
 }
 

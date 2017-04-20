@@ -35,5 +35,6 @@ void command_ledstats(uint8_t argc, char *argv[]);
 void command_ledset(uint8_t argc, char *argv[]);
 void command_light(uint8_t argc, char *argv[]);
 void command_whistle(uint8_t argc, char *argv[]);
+void command_spectrum(uint8_t argc, char *argv[]);
 
 #endif

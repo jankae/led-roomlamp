@@ -1,9 +1,9 @@
-MCU = atmega8
-F_CPU = 8000000UL
+MCU = atmega328p
+F_CPU = 16000000UL
 
 # Settings for flashing via esp-link
 PROGRAMMER_TYPE = arduino
-PROGRAMMER_ARGS = -D -Pnet:192.168.178.174:23 -b38400
+PROGRAMMER_ARGS = -D -Pnet:192.168.178.174:2323 -b115200
 
 #PROGRAMMER_TYPE = stk500v2
 # extra arguments to avrdude: baud rate, chip type, -F flag, etc.
