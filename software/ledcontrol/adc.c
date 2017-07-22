@@ -1,6 +1,6 @@
 #include "adc.h"
 
-uint16_t avgSpectrum[FFT_N/2];
+uint32_t avgSpectrum[FFT_N/2];
 
 void ADC_Init() {
 	/* AVCC as reference, mic channel is 0 */
@@ -51,7 +51,7 @@ uint16_t ADC_PeakSearch(void) {
 	}
 	/* update average spectrum */
 	for (i = 0; i < FFT_N / 2; i++) {
-		avgSpectrum[i] -= avgSpectrum[i]>>2;
+		avgSpectrum[i] -= avgSpectrum[i]>>3;
 		avgSpectrum[i] += spectrum[i];
 	}
 	/* ADC can start sampling new data */
@@ -59,7 +59,7 @@ uint16_t ADC_PeakSearch(void) {
 	/* peak search: identify single peak (if present) */
 
 	/* find maximum value */
-	uint16_t max = 0;
+	uint32_t max = 0;
 	uint16_t peak = 0;
 	for (i = 0; i < FFT_N / 2; i++) {
 		if (avgSpectrum[i] > max) {
@@ -71,11 +71,11 @@ uint16_t ADC_PeakSearch(void) {
 		/* peak not big enough */
 		return 0;
 	}
-	uint32_t energy = 0;
-	uint32_t energyPeak = 0;
+	uint64_t energy = 0;
+	uint64_t energyPeak = 0;
 	/* check if this is the only peak present */
 	for (i = 0; i < FFT_N / 2; i++) {
-		uint32_t e = avgSpectrum[i] * avgSpectrum[i];
+		uint64_t e = avgSpectrum[i] * avgSpectrum[i];
 		energy += e;
 		uint8_t diff;
 		if (i > peak)

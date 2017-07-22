@@ -23,7 +23,7 @@
 /** Minimum peak level */
 #define ADC_PEAK_MIN_HEIGHT		64
 /** Maximum width of accepted peak in Hz (one direction, e.i. half of the whole peak width */
-#define ADC_PEAK_MAX_WIDTH		120UL
+#define ADC_PEAK_MAX_WIDTH		250UL
 #define ADC_PEAK_MAX_WIDTH_FFT	(ADC_PEAK_MAX_WIDTH * FFT_N /ADC_SAMPLE_FREQ)
 
 #define ADC_SPECTRAL_RATIO_NUM	1

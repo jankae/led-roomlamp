@@ -29,12 +29,20 @@ int main(void){
 		timing_Wait(1);
 	}
 
-	while(1){
+	uint8_t consecutivePeaks = 0;
+#define MIN_CONSEC_PEAKS		10
+	while (1) {
 		shell_Update();
-		if(adc.enabled && adc.newData) {
+		if (adc.enabled && adc.newData) {
 			/* store new measurement */
 			uint16_t freq = ADC_PeakSearch();
 			if (freq > 750) {
+				if (consecutivePeaks < UINT8_MAX)
+					consecutivePeaks++;
+			} else {
+				consecutivePeaks = 0;
+			}
+			if (consecutivePeaks >= MIN_CONSEC_PEAKS) {
 				uint16_t current = 0;
 				if (freq > 2000) {
 					current = LED_MAX_CURRENT;
